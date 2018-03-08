@@ -68,6 +68,9 @@
     <Compile Include="Classes\Geometry\Functions.cs" />
     <Compile Include="Classes\Geometry\Polygon.cs" />
     <Compile Include="Classes\Geometry\Shape.cs" />
+    <Compile Include="Classes\GUI\Button.cs" />
+    <Compile Include="Classes\GUI\Camera.cs" />
+    <Compile Include="Classes\GUI\Joystick.cs" />
     <Compile Include="Classes\Physics\Body.cs" />
     <Compile Include="Classes\Physics\PhysicalType.cs" />
     <Compile Include="Classes\Physics\PhysicsController.cs" />
@@ -85,6 +88,7 @@
     <AndroidResource Include="Resources\Drawable\Icon.png" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Classes\Serialization\" />
     <Folder Include="Resources\Layout\" />
   </ItemGroup>
   <ItemGroup>
