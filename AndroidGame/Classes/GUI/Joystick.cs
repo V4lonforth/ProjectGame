@@ -25,7 +25,6 @@ namespace AndroidGame.GUI
 
         public Joystick(int size, Rectangle zone, Texture2D background, Texture2D foreground, Action<Vector2> action)
         {
-
             backgroundDrawable = new Drawable(background, new Rectangle(0, 0, size, size));
             foregroundDrawable = new Drawable(foreground, new Rectangle(0, 0, size, size));
 
@@ -34,32 +33,6 @@ namespace AndroidGame.GUI
             Action = action;
         }
 
-        public bool Touch(TouchLocation touchLocation)
-        {
-            if (!isActive)
-            {
-                if (touchLocation.State == TouchLocationState.Pressed && IsTouched(touchLocation.Position))
-                {
-                    StartTouching(touchLocation.Position);
-                    touchID = touchLocation.Id;
-                    return true;
-                }
-            }
-            else if (touchLocation.Id == touchID)
-            {
-                switch (touchLocation.State)
-                {
-                    case TouchLocationState.Moved:
-                        ContinueTouching(touchLocation.Position);
-                        break;
-                    case TouchLocationState.Released:
-                        EndTouching();
-                        break;
-                }
-                return true;
-            }
-            return false;
-        }
 
         private bool IsTouched(Vector2 point)
         {
@@ -67,7 +40,6 @@ namespace AndroidGame.GUI
                 return true;
             return false;
         }
-
 
         private void StartTouching(Vector2 point)
         {
@@ -104,11 +76,35 @@ namespace AndroidGame.GUI
             Action(Vector2.Zero);
             isActive = false;
         }
-        public void Update(float deltaTime)
+
+        public bool Touch(TouchLocation touchLocation, float deltaTime)
         {
-            if (isActive)
+            if (!isActive)
+            {
+                if (touchLocation.State == TouchLocationState.Pressed && IsTouched(touchLocation.Position))
+                {
+                    StartTouching(touchLocation.Position);
+                    touchID = touchLocation.Id;
+                    return true;
+                }
+            }
+            else if (touchLocation.Id == touchID)
+            {
                 timeToInactiveLeft -= deltaTime;
+                switch (touchLocation.State)
+                {
+                    case TouchLocationState.Moved:
+                        ContinueTouching(touchLocation.Position);
+                        break;
+                    case TouchLocationState.Released:
+                        EndTouching();
+                        break;
+                }
+                return true;
+            }
+            return false;
         }
+
         public void Draw(SpriteBatch spriteBatch)
         {
             if (timeToInactiveLeft > 0.0f)
