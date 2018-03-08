@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using AndroidGame.Geometry;
+using AndroidGame.GameObjects.Base;
 
 namespace AndroidGame.Physics
 {
@@ -34,7 +35,7 @@ namespace AndroidGame.Physics
         }
         
         private PhysicalType type;
-        public object Parent
+        public PhysicalObject Parent
         {
             get;
             private set;
@@ -48,7 +49,7 @@ namespace AndroidGame.Physics
 
         private static PhysicsController physicsController;
 
-        public Body(Shape[] shapes, float size, Vector2 pos, Vector2 dir, PhysicalType type, object par, bool includeInPhysics = true)
+        public Body(Shape[] shapes, float size, Vector2 pos, Vector2 dir, PhysicalType type, PhysicalObject par, bool includeInPhysics = true)
         {
             Parent = par;
 
@@ -66,7 +67,7 @@ namespace AndroidGame.Physics
             if (includeInPhysics)
                 physicsController.AddBody(this, type);
         }
-        public Body(Body baseBody, Vector2 pos, Vector2 dir, object par, bool includeInPhysics = true)
+        public Body(Body baseBody, Vector2 pos, Vector2 dir, PhysicalObject par, bool includeInPhysics = true)
         {
             Parent = par;
 
