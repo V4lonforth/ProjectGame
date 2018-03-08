@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using AndroidGame.Physics;
-using AndroidGame.Geometry;
 
 namespace AndroidGame.GameObjects.Base
 {
@@ -45,15 +44,10 @@ namespace AndroidGame.GameObjects.Base
             speed = sp;
             Type = t;
         }
-
-        public void Move(float deltaTime)
+        
+        public void Update(float deltaTime)
         {
             Position += speed * deltaTime * MovementDirection;
-        }
-
-        public void RotateMovement(float angle)
-        {
-            MovementDirection = Functions.RotateVector2(MovementDirection, angle);
         }
     }
 }

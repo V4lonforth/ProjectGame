@@ -286,3 +286,14 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+/AndroidGame/Classes/GameObjects/Ships/ShipPart.cs
+/AndroidGame/Classes/GameObjects/Ships/Ship.cs
+/AndroidGame/Classes/GameObjects/Ships/AIShip.cs
+/AndroidGame/Classes/GameObjects/Projectile.cs
+/AndroidGame/Classes/GameObjects/Loot.cs
+/AndroidGame/Classes/Controllers/ShipsController.cs
+/AndroidGame/Classes/Controllers/ProjectilesController.cs
+/AndroidGame/Classes/Controllers/LootController.cs
+/AndroidGame/Classes/Controllers/IController.cs
+/AndroidGame/Classes/Controllers/GUIController.cs
+/AndroidGame/Classes/GameObjects/Ships/Gun.cs

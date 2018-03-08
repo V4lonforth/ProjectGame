@@ -60,10 +60,21 @@
   <ItemGroup>
     <Compile Include="Classes\Base\Activity.cs" />
     <Compile Include="Classes\Base\AndroidGame.cs" />
+    <Compile Include="Classes\Controllers\GUIController.cs" />
+    <Compile Include="Classes\Controllers\IController.cs" />
+    <Compile Include="Classes\Controllers\LootController.cs" />
+    <Compile Include="Classes\Controllers\ProjectilesController.cs" />
+    <Compile Include="Classes\Controllers\ShipsController.cs" />
     <Compile Include="Classes\GameObjects\Base\Drawable.cs" />
     <Compile Include="Classes\GameObjects\Base\PhysicalObject.cs" />
     <Compile Include="Classes\GameObjects\Base\PhysicalObjectAcc.cs" />
     <Compile Include="Classes\GameObjects\Base\PhysicalObjectsTypes.cs" />
+    <Compile Include="Classes\GameObjects\Loot.cs" />
+    <Compile Include="Classes\GameObjects\Projectile.cs" />
+    <Compile Include="Classes\GameObjects\Ships\AIShip.cs" />
+    <Compile Include="Classes\GameObjects\Ships\Gun.cs" />
+    <Compile Include="Classes\GameObjects\Ships\Ship.cs" />
+    <Compile Include="Classes\GameObjects\Ships\ShipPart.cs" />
     <Compile Include="Classes\Geometry\Circle.cs" />
     <Compile Include="Classes\Geometry\Functions.cs" />
     <Compile Include="Classes\Geometry\Polygon.cs" />

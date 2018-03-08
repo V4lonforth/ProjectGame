@@ -16,10 +16,9 @@ namespace AndroidGame.GameObjects.Base
             acceleration = acc;
             isAccelerating = false;
         }
-
-        public new void Move(float deltaTime)
+        
+        public new void Update(float deltaTime)
         {
-            Position += speed * deltaTime * MovementDirection;
             if (isAccelerating)
             {
                 if (speed < maxSpeed)
@@ -34,6 +33,7 @@ namespace AndroidGame.GameObjects.Base
                 else
                     speed = 0f;
             }
+            base.Update(deltaTime);
         }
     }
 }
