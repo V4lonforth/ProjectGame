@@ -60,6 +60,10 @@
   <ItemGroup>
     <Compile Include="Classes\Base\Activity.cs" />
     <Compile Include="Classes\Base\AndroidGame.cs" />
+    <Compile Include="Classes\Geometry\Circle.cs" />
+    <Compile Include="Classes\Geometry\Functions.cs" />
+    <Compile Include="Classes\Geometry\Polygon.cs" />
+    <Compile Include="Classes\Geometry\Shape.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
