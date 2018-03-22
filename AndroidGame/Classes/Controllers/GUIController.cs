@@ -18,17 +18,14 @@ namespace AndroidGame.Controllers
         private static int offset = 5;
         private static Point activeZoneSize = new Point(400, 400);
 
-        private const string joystickSpritesPath = "Sprites/Joystick/";
+        private const string joystickSpritesPath = "Sprites/Joystick";
 
-        public GUIController(ContentManager Content, Action<Vector2> joystickActionLeft, Action<Vector2> joystickActionRight)
+        public GUIController(Action<Vector2> joystickActionLeft, Action<Vector2> joystickActionRight, ContentManager Content)
         {
-            Texture2D background = Content.Load<Texture2D>(joystickSpritesPath + "Background"),
+            Texture2D background = Content.Load<Texture2D>(joystickSpritesPath + "Background"), 
                       foreground = Content.Load<Texture2D>(joystickSpritesPath + "Foreground");
-            joysticks = new Joystick[]
-                {
-                new Joystick(joystickSize, new Rectangle(offset, screenSize.Y - activeZoneSize.Y - offset, activeZoneSize.X, activeZoneSize.Y), background, foreground, joystickActionLeft),
-                new Joystick(joystickSize, new Rectangle(screenSize.X - activeZoneSize.X - offset, screenSize.Y - activeZoneSize.Y - offset, activeZoneSize.X, activeZoneSize.Y), background, foreground, joystickActionRight)
-            };
+            joysticks[0] = new Joystick(joystickSize, new Rectangle(offset, screenSize.Y - activeZoneSize.Y - offset, activeZoneSize.X, activeZoneSize.Y), background, foreground, joystickActionLeft);
+            joysticks[1] = new Joystick(joystickSize, new Rectangle(screenSize.X - activeZoneSize.X - offset, screenSize.Y - activeZoneSize.Y - offset, activeZoneSize.X, activeZoneSize.Y), background, foreground, joystickActionRight);
         }
 
         public void Update(float deltaTime)
