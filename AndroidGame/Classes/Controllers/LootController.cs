@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using AndroidGame.GameObjects;
 using AndroidGame.Physics;
 using AndroidGame.Geometry;
+using AndroidGame.Serialization;
 
 namespace AndroidGame.Controllers
 {
@@ -13,7 +14,7 @@ namespace AndroidGame.Controllers
     {
         private List<Loot> lootList;
 
-        private Body baseBody;
+        private BodyInfo bodyInfo;
 
         private Texture2D lootSprite;
 
@@ -24,12 +25,16 @@ namespace AndroidGame.Controllers
 
         private const int type = 1;
 
-        private const string lootSpritePath = "";
+        private const string lootSpritePath = "Sprites/Loot/Loot";
 
         public LootController(ContentManager Content)
         {
             lootList = new List<Loot>();
-            baseBody = new Body(new Shape[] { new Circle(Vector2.Zero, triggerRadius) }, triggerRadius * 2f, Vector2.Zero, Vector2.Zero, PhysicalType.Loot, null, false);
+            bodyInfo = new BodyInfo()
+            {
+                shapes = new Shape[] { new Circle(Vector2.Zero, triggerRadius) }
+            };
+            bodyInfo.Initialize(PhysicalType.Loot);
             lootSprite = Content.Load<Texture2D>(lootSpritePath);
         }
         public void AddLoot(float experience, Vector2 position)
@@ -47,7 +52,7 @@ namespace AndroidGame.Controllers
             {
                 Vector2 pos = Functions.RandomVector2(minLootDistanceSpawn, maxLootDistanceSpawn) + position;
                 Vector2 dir = Functions.RandomVector2();
-                Loot loot = new Loot(lootSprite, droppingExp, pos, dir, baseBody, this);
+                Loot loot = new Loot(lootSprite, droppingExp, pos, dir, bodyInfo, this);
                 lootList.Add(loot);
             }
         }
