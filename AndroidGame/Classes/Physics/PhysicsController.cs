@@ -4,6 +4,7 @@ namespace AndroidGame.Physics
 {
     public class PhysicsController
     {
+        private CollisionChecker collisionChecker;
         private List<Body>[] bodies;
 
         private bool[,] collisionPermission;
@@ -12,9 +13,12 @@ namespace AndroidGame.Physics
 
         public PhysicsController()
         {
-            physicalTypesCount = 3;
+            collisionChecker = new CollisionChecker();
 
+            physicalTypesCount = 3;
             bodies = new List<Body>[physicalTypesCount];
+            for (int i = 0; i < physicalTypesCount; i++)
+                bodies[i] = new List<Body>();
 
             collisionPermission = new bool[,]
             {
@@ -25,10 +29,14 @@ namespace AndroidGame.Physics
         }
         public PhysicsController(int physicalTypesCount, bool[,] collisionPermission)
         {
+            collisionChecker = new CollisionChecker();
+
             this.physicalTypesCount = physicalTypesCount;
             this.collisionPermission = collisionPermission;
 
             bodies = new List<Body>[physicalTypesCount];
+            for (int i = 0; i < physicalTypesCount; i++)
+                bodies[i] = new List<Body>();
         }
 
         public void AddBody(Body body, PhysicalType type)
@@ -59,7 +67,7 @@ namespace AndroidGame.Physics
             {
                 for (int l = 0; l < bodies[j].Count; l++)
                 {
-                    if (bodies[i][k].CheckCollision(bodies[j][l]))
+                    if (bodies[i][k].CheckCollision(bodies[j][l], collisionChecker))
                     {
                         if (bodies[i][k].OnCollisionAction(bodies[j][l]))
                         {

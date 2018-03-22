@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using AndroidGame.Geometry;
 using AndroidGame.GameObjects.Base;
+using AndroidGame.Serialization;
 
 namespace AndroidGame.Physics
 {
@@ -12,20 +13,15 @@ namespace AndroidGame.Physics
 
         private Shape[] realShapes;
         
-        private Vector2 direction;
         private Vector2 position;
 
-        public Vector2 Direction
-        {
-            get { return direction; }
-            set
-            {
-                direction = value;
-            }
-        }
+        public Vector2 Direction { get; set; }
         public Vector2 Position
         {
-            get { return position; }
+            get
+            {
+                return position;
+            }
             set
             {
                 position = value;
@@ -34,56 +30,32 @@ namespace AndroidGame.Physics
             }
         }
         
-        private PhysicalType type;
         public PhysicalObject Parent
         {
             get;
             private set;
         }
 
-        public Func<Body, bool> OnCollisionAction
-        {
-            get;
-            set;
-        }
+        public Func<Body, bool> OnCollisionAction { get; private set; }
 
-        private static PhysicsController physicsController;
+        private static PhysicsController physicsController = new PhysicsController();
 
-        public Body(Shape[] shapes, float size, Vector2 pos, Vector2 dir, PhysicalType type, PhysicalObject par, bool includeInPhysics = true)
+        public Body(BodyInfo bodyInfo, Func<Body, bool> onCollision, Vector2 pos, Vector2 dir, PhysicalObject par, bool includeInPhysics = true)
         {
             Parent = par;
-
-            this.type = type;
-            AABB.Height = AABB.Width = (int)size + 1;
-
-            Position = pos;
-            Direction = dir;
-
-            baseShapes = shapes;
-            realShapes = new Shape[shapes.Length];
-
-            for (int i = 0; i < shapes.Length; i++)
-                realShapes[i] = baseShapes[i].Copy();
-            if (includeInPhysics)
-                physicsController.AddBody(this, type);
-        }
-        public Body(Body baseBody, Vector2 pos, Vector2 dir, PhysicalObject par, bool includeInPhysics = true)
-        {
-            Parent = par;
-
-            baseShapes = baseBody.baseShapes;
-            realShapes = new Shape[baseBody.realShapes.Length];
+            OnCollisionAction = onCollision;
+            
+            baseShapes = bodyInfo.shapes;
+            realShapes = new Shape[bodyInfo.shapes.Length];
             for (int i = 0; i < realShapes.Length; i++)
-                realShapes[i] = baseBody.realShapes[i].Copy();
+                realShapes[i] = (Shape)bodyInfo.shapes[i].Clone();
 
-            AABB = baseBody.AABB;
+            AABB.Height = AABB.Width = (int)bodyInfo.Size;
             Position = pos;
-
             Direction = dir;
-            type = baseBody.type;
 
             if (includeInPhysics)
-                physicsController.AddBody(this, type);
+                physicsController.AddBody(this, bodyInfo.PhysicalType);
         }
 
         public static void SetPhysicsController(PhysicsController controller)
@@ -97,10 +69,10 @@ namespace AndroidGame.Physics
         }
         public void Rotate(float angle)
         {
-            Direction += Functions.RotateVector2(direction, angle);
+            Direction += Functions.RotateVector2(Direction, angle);
         }
 
-        public bool CheckCollision(Body body)
+        public bool CheckCollision(Body body, CollisionChecker checker)
         {
             if (!CheckAABBCollision(ref body.AABB))
                 return false;
@@ -108,7 +80,7 @@ namespace AndroidGame.Physics
             body.RefreshState();
             foreach (Shape shape in realShapes)
                 foreach (Shape bodyShape in body.realShapes)
-                    if (shape.CheckCollision(bodyShape))
+                    if (checker.CheckCollision(shape, bodyShape))
                         return true;
             return false;
         }
@@ -125,8 +97,8 @@ namespace AndroidGame.Physics
         {
             for (int i = 0; i < baseShapes.Length; i++)
             {
-                realShapes[i].Rotate(baseShapes[i], direction);
-                realShapes[i].Move(baseShapes[i], position);
+                realShapes[i].Rotate(baseShapes[i], Direction);
+                realShapes[i].Move(baseShapes[i], Position);
             }
         }
     }
