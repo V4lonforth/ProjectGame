@@ -33,7 +33,6 @@ namespace AndroidGame.GUI
             Action = action;
         }
 
-
         private bool IsTouched(Vector2 point)
         {
             if (activeZone.Left <= point.X && point.X <= activeZone.Right && activeZone.Top <= point.Y && point.Y <= activeZone.Bottom)
@@ -55,6 +54,7 @@ namespace AndroidGame.GUI
             centre = point;
             foregroundDrawable.Position = point;
             backgroundDrawable.Position = point;
+            timeToInactiveLeft = timeToInactive;
             isActive = true;
         }
         private void ContinueTouching(Vector2 point)
@@ -71,7 +71,6 @@ namespace AndroidGame.GUI
         }
         private void EndTouching()
         {
-            timeToInactiveLeft = timeToInactive;
             foregroundDrawable.Position = centre;
             Action(Vector2.Zero);
             isActive = false;
@@ -81,6 +80,7 @@ namespace AndroidGame.GUI
         {
             if (!isActive)
             {
+                timeToInactiveLeft -= deltaTime;
                 if (touchLocation.State == TouchLocationState.Pressed && IsTouched(touchLocation.Position))
                 {
                     StartTouching(touchLocation.Position);
@@ -90,7 +90,6 @@ namespace AndroidGame.GUI
             }
             else if (touchLocation.Id == touchID)
             {
-                timeToInactiveLeft -= deltaTime;
                 switch (touchLocation.State)
                 {
                     case TouchLocationState.Moved:
