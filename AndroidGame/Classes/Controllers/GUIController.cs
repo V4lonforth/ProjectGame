@@ -18,23 +18,29 @@ namespace AndroidGame.Controllers
         private static int offset = 5;
         private static Point activeZoneSize = new Point(400, 400);
 
-        private const string joystickSpritesPath = "Sprites/Joystick";
+        private const string joystickSpritesPath = "Sprites/Joystick/";
 
-        public GUIController(Action<Vector2> joystickActionLeft, Action<Vector2> joystickActionRight, ContentManager Content)
+        public GUIController(ContentManager Content, Action<Vector2> joystickActionLeft, Action<Vector2> joystickActionRight)
         {
-            Texture2D background = Content.Load<Texture2D>(joystickSpritesPath + "Background"), 
+            Texture2D background = Content.Load<Texture2D>(joystickSpritesPath + "Background"),
                       foreground = Content.Load<Texture2D>(joystickSpritesPath + "Foreground");
-            joysticks[0] = new Joystick(joystickSize, new Rectangle(offset, screenSize.Y - activeZoneSize.Y - offset, activeZoneSize.X, activeZoneSize.Y), background, foreground, joystickActionLeft);
-            joysticks[1] = new Joystick(joystickSize, new Rectangle(screenSize.X - activeZoneSize.X - offset, screenSize.Y - activeZoneSize.Y - offset, activeZoneSize.X, activeZoneSize.Y), background, foreground, joystickActionRight);
+            joysticks = new Joystick[]
+            {
+                new Joystick(joystickSize, new Rectangle(offset, screenSize.Y - activeZoneSize.Y - offset, activeZoneSize.X, activeZoneSize.Y), background, foreground, joystickActionLeft),
+                new Joystick(joystickSize, new Rectangle(screenSize.X - activeZoneSize.X - offset, screenSize.Y - activeZoneSize.Y - offset, activeZoneSize.X, activeZoneSize.Y), background, foreground, joystickActionRight)
+            };
         }
 
         public void Update(float deltaTime)
         {
             TouchCollection touchCollection = TouchPanel.GetState();
+            foreach (Joystick joystick in joysticks)
+                joystick.Update(deltaTime);
+
             foreach (TouchLocation touchLocation in touchCollection)
             {
                 foreach (Joystick joystick in joysticks)
-                    if (joystick.Touch(touchLocation, deltaTime))
+                    if (joystick.Touch(touchLocation))
                         break;
             }
         }
