@@ -1,11 +1,15 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using AndroidGame.Physics;
+using AndroidGame.Serialization;
 
 namespace AndroidGame.GameObjects.Base
 {
-    public class PhysicalObject
+    public abstract class PhysicalObject : IPhysicalObject
     {
         protected Body body;
+        private Drawable drawable;
 
         public Vector2 Position
         {
@@ -15,6 +19,7 @@ namespace AndroidGame.GameObjects.Base
             }
             protected set
             {
+                drawable.Position = value;
                 body.Position = value;
             }
         }
@@ -27,6 +32,7 @@ namespace AndroidGame.GameObjects.Base
             }
             protected set
             {
+                drawable.Rotation = (float)Math.Atan2(value.Y, value.X);
                 body.Direction = value;
             }
         }
@@ -35,9 +41,10 @@ namespace AndroidGame.GameObjects.Base
         
         public PhysicalObjectType Type { get; private set; }
         
-        public PhysicalObject(float sp, PhysicalObjectType t, Vector2 pos, Vector2 movDir, Vector2 lookDir, Body baseBody)
+        public PhysicalObject(Drawable draw, float sp, PhysicalObjectType t, Vector2 pos, Vector2 movDir, Vector2 lookDir, BodyInfo bodyInfo)
         {
-            body = new Body(baseBody, pos, lookDir, this, true);
+            body = new Body(bodyInfo, OnCollision, pos, lookDir, this);
+            drawable = draw;
             Position = pos;
             MovementDirection = movDir;
             LookingDirection = lookDir;
@@ -49,5 +56,11 @@ namespace AndroidGame.GameObjects.Base
         {
             Position += speed * deltaTime * MovementDirection;
         }
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            drawable.Draw(spriteBatch);
+        }
+
+        protected abstract bool OnCollision(Body body);
     }
 }

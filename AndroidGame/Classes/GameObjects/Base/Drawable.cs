@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AndroidGame.GameObjects.Base
 {
-    class Drawable
+    public class Drawable
     {
         private Texture2D texture;
         private Vector2 centre;
@@ -21,19 +21,17 @@ namespace AndroidGame.GameObjects.Base
                 destinationRectangle.Y = (int)value.Y;
             }
         }
-        public float Rotation
-        {
-            protected get;
-            set;
-        }
+        public float Rotation { protected get; set; }
 
         private SpriteEffects spriteEffects;
 
-        public Drawable(Texture2D text, Vector2 position, Vector2? size = null, Color? col = null, float rot = 0f, float dep = 0.5f, SpriteEffects effect = SpriteEffects.None)
+        public Drawable(Texture2D text, Vector2? pos = null, Vector2? size = null, Color? col = null, float rot = 0f, float dep = 0.5f, SpriteEffects effect = SpriteEffects.None)
         {
             texture = text;
-            destinationRectangle.X = (int)position.X;
-            destinationRectangle.Y = (int)position.Y;
+            if (pos.HasValue)
+                Position = pos.Value;
+            else
+                Position = Vector2.Zero;
             if (size.HasValue)
             {
                 destinationRectangle.Width = (int)size.Value.X;

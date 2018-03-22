@@ -1,16 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
-using AndroidGame.Physics;
+using AndroidGame.Serialization;
 
 namespace AndroidGame.GameObjects.Base
 {
-    class PhysicalObjectAcc : PhysicalObject
+    public abstract class PhysicalObjectAcc : PhysicalObject, IPhysicalObject
     {
         protected float acceleration;
         protected float maxSpeed;
 
         protected bool isAccelerating;
         
-        public PhysicalObjectAcc(float maxSp, float acc, PhysicalObjectType t, Vector2 pos, Vector2 movDir, Vector2 lookDir, Body baseBody) : base(0f, t, pos, movDir, lookDir, baseBody)
+        public PhysicalObjectAcc(Drawable draw, float maxSp, float acc, PhysicalObjectType t, Vector2 pos, Vector2 movDir, Vector2 lookDir, BodyInfo bodyInfo) 
+            : base(draw, 0f, t, pos, movDir, lookDir, bodyInfo)
         {
             maxSpeed = maxSp;
             acceleration = acc;
