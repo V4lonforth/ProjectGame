@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Xml.Serialization;
-using Microsoft.Xna.Framework;
 using AndroidGame.Physics;
-using AndroidGame.Geometry;
 
 namespace AndroidGame.Serialization
 {
     [XmlRoot("Ship")]
     public class ShipInfo : ISerializationInfo
     {
+        [XmlElement("RotationSpeed")]
+        public float rotationSpeed;
+
         [XmlElement("MaxSpeed")]
         public float maxSpeed;
 
@@ -18,41 +19,25 @@ namespace AndroidGame.Serialization
         [XmlElement("Health")]
         public float health;
 
-        [XmlElement("Experience")]
-        public float experience;
+        [XmlElement("ShipType")]
+        public int shipType;
 
-        [XmlElement("Type")]
-        public int type;
+        [XmlElement("LevelUpExperience")]
+        public float levelUpExperience;
 
-        [XmlElement("NextShipType")]
-        public int[] nextShipsTypes;
-
-        [XmlElement("ShipPart")]
-        public ShipPartInfo[] shipParts;
-
-        [XmlElement("Shape")]
-        public Shape[] shapes;
+        [XmlElement("LevelUpShipType")]
+        public int[] levelUpShipTypes;
 
         [XmlElement("Gun")]
-        public GunInfo gun;
+        public GunInfo gunInfo;
 
-        public Body Body
-        {
-            get;
-            private set;
-        }
+        [XmlElement("Body")]
+        public BodyInfo bodyInfo;
 
         public void Initialize()
         {
-            float size = 0f;
-            foreach (Shape shape in shapes)
-            {
-                size = Math.Max(size, shape.GetMaxDistance());
-                if (typeof(Polygon) == shape.GetType())
-                    ((Polygon)shape).CalculateNormals();
-            }
-            size *= 2f;
-            Body = new Body(shapes, size, Vector2.Zero, Vector2.Zero, PhysicalType.Ship, null, false);
+            bodyInfo.Initialize(PhysicalType.Ship);
+            rotationSpeed = rotationSpeed / 180f * (float)Math.PI;
         }
     }
 }

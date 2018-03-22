@@ -1,17 +1,12 @@
-﻿using System;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using AndroidGame.Physics;
-using AndroidGame.Geometry;
 
 namespace AndroidGame.Serialization
 {
     [XmlRoot("Projectile")]
     public class ProjectileInfo : ISerializationInfo
     {
-        [XmlElement("Damage")]
-        public float damage;
-
         [XmlElement("Speed")]
         public float speed;
 
@@ -21,27 +16,15 @@ namespace AndroidGame.Serialization
         [XmlElement("SpriteIndex")]
         public int spriteIndex;
 
-        [XmlElement("Shape")]
-        public Shape[] shapes;
+        [XmlElement("ProjectileType")]
+        public int projectileType;
 
-        public Body Body
-        {
-            get;
-            private set;
-        }
+        [XmlElement("Body")]
+        public BodyInfo bodyInfo;
 
         public void Initialize()
         {
-            float size = 0f;
-            foreach (Shape shape in shapes)
-            {
-                size = Math.Max(size, shape.GetMaxDistance());
-                if (shape.GetType() == typeof(Polygon))
-                    ((Polygon)shape).CalculateNormals();
-            }
-            size *= 2f;
-
-            Body = new Body(shapes, size, Vector2.Zero, Vector2.Zero, PhysicalType.Projectile, null, false);
+            bodyInfo.Initialize(PhysicalType.Projectile);
         }
     }
 }
