@@ -17,7 +17,7 @@ namespace AndroidGame.Geometry
             radius = rad;
         }
 
-        public override Shape Copy()
+        public override object Clone()
         {
             return new Circle(centre, radius);
         }
@@ -32,13 +32,6 @@ namespace AndroidGame.Geometry
         public override float GetMaxDistance()
         {
             return centre.Length() + radius;
-        }
-
-        public override bool CheckCollision(Shape shape)
-        {
-            if (shape.GetType() == typeof(Circle))
-                return CheckCollision(this, (Circle)shape);
-            return CheckCollision(this, (Polygon)shape);
         }
     }
 }

@@ -29,7 +29,7 @@ namespace AndroidGame.Geometry
             }
         }
 
-        public override Shape Copy()
+        public override object Clone()
         {
             Polygon polygon = new Polygon
             {
@@ -62,12 +62,6 @@ namespace AndroidGame.Geometry
             for (int i = 0; i < vertices.Length; i++)
                 maxDistance = Math.Max(maxDistance, vertices[i].Length());
             return maxDistance;
-        }
-        public override bool CheckCollision(Shape shape)
-        {
-            if (shape.GetType() == typeof(Circle))
-                return CheckCollision((Circle)shape, this);
-            return CheckCollision((Polygon)shape, this);
         }
     }
 }
