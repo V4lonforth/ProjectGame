@@ -5,6 +5,9 @@ namespace AndroidGame.Serialization
 {
     public class GunInfo
     {
+        [XmlElement("ProjectileSpeed")]
+        public float projectileSpeed;
+
         [XmlElement("Damage")]
         public float damage;
 

@@ -26,5 +26,11 @@ namespace AndroidGame.Serialization
             PhysicalType = physicalType;
             Size *= 2f;
         }
+
+        public void ChangeSize(float multiplier)
+        {
+            foreach (Shape shape in shapes)
+                shape.ChangeSize(multiplier);
+        }
     }
 }

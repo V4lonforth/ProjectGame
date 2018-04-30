@@ -64,19 +64,22 @@
     <Compile Include="Classes\Controllers\GUIController.cs" />
     <Compile Include="Classes\Controllers\IController.cs" />
     <Compile Include="Classes\Controllers\LootController.cs" />
+    <Compile Include="Classes\Controllers\ParticleSystem.cs" />
     <Compile Include="Classes\Controllers\ProjectilesController.cs" />
     <Compile Include="Classes\Controllers\ShipsController.cs" />
     <Compile Include="Classes\GameObjects\Base\Drawable.cs" />
+    <Compile Include="Classes\GameObjects\Base\PhysicalObjectsType.cs" />
+    <Compile Include="Classes\GameObjects\Ships\BaseShip.cs" />
+    <Compile Include="Classes\GameObjects\Ships\Gun.cs" />
     <Compile Include="Classes\GameObjects\Base\IPhysicalObject.cs" />
     <Compile Include="Classes\GameObjects\Base\PhysicalObject.cs" />
     <Compile Include="Classes\GameObjects\Base\PhysicalObjectAcc.cs" />
-    <Compile Include="Classes\GameObjects\Base\PhysicalObjectsTypes.cs" />
+    <Compile Include="Classes\GameObjects\Ships\Ship.cs" />
     <Compile Include="Classes\GameObjects\Loot.cs" />
+    <Compile Include="Classes\GameObjects\ParticleSpawner.cs" />
     <Compile Include="Classes\GameObjects\Projectile.cs" />
     <Compile Include="Classes\GameObjects\Ships\AIShip.cs" />
-    <Compile Include="Classes\GameObjects\Ships\Gun.cs" />
     <Compile Include="Classes\GameObjects\Ships\PlayerShip.cs" />
-    <Compile Include="Classes\GameObjects\Ships\Ship.cs" />
     <Compile Include="Classes\Geometry\Circle.cs" />
     <Compile Include="Classes\Geometry\Functions.cs" />
     <Compile Include="Classes\Geometry\Polygon.cs" />
@@ -91,6 +94,7 @@
     <Compile Include="Classes\Serialization\BodyInfo.cs" />
     <Compile Include="Classes\Serialization\GunInfo.cs" />
     <Compile Include="Classes\Serialization\ISerializationInfo.cs" />
+    <Compile Include="Classes\Serialization\ParticleSpawnerInfo.cs" />
     <Compile Include="Classes\Serialization\ProjectileInfo.cs" />
     <Compile Include="Classes\Serialization\SerializationManager.cs" />
     <Compile Include="Classes\Serialization\ShipInfo.cs" />
@@ -125,15 +129,27 @@
   <ItemGroup>
     <AndroidAsset Include="Content\Info\Projectiles.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </AndroidAsset>
     <AndroidAsset Include="Content\Info\Ships.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </AndroidAsset>
+    <Content Include="Content\Shaders\ParticleShader.fx" />
     <Content Include="Content\Sprites\Joystick\Background.png" />
     <Content Include="Content\Sprites\Joystick\Foreground.png" />
     <Content Include="Content\Sprites\Loot\Loot.png" />
     <Content Include="Content\Sprites\Projectiles\Projectile0.png" />
     <Content Include="Content\Sprites\Ships\Ship0.png" />
+    <Content Include="Content\Sprites\Ships\Ship1.png" />
+    <Content Include="Content\Sprites\Ships\Ship2.png" />
+    <Content Include="Content\Sprites\Ships\Ship3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NetworkLib\NetworkLib.csproj">
+      <Project>{05f6bbd0-6dbc-4c80-9600-e4012cde6ef6}</Project>
+      <Name>NetworkLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

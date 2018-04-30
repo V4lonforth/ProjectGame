@@ -1,6 +1,7 @@
-﻿using System;
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
+using Microsoft.Xna.Framework;
 using AndroidGame.Physics;
+using AndroidGame.Geometry;
 
 namespace AndroidGame.Serialization
 {
@@ -31,13 +32,37 @@ namespace AndroidGame.Serialization
         [XmlElement("Gun")]
         public GunInfo gunInfo;
 
+        [XmlElement("ParticleSpawner")]
+        public ParticleSpawnerInfo spawnerInfo;
+
         [XmlElement("Body")]
         public BodyInfo bodyInfo;
 
+        [XmlElement("SpriteSize")]
+        public Vector2 spriteSize;
+
+        [XmlElement("SizeMultiplier")]
+        public float sizeMultiplier;
+
+        [XmlElement("Color")]
+        public Color color;
+
+        public ShipInfo()
+        {
+            color = Color.White;
+            sizeMultiplier = 1f;
+        }
+
         public void Initialize()
         {
+            rotationSpeed = Functions.DegreeToRadians(rotationSpeed);
+
+            spriteSize *= sizeMultiplier;
+            bodyInfo.ChangeSize(sizeMultiplier);
+            spawnerInfo.ChangeSize(sizeMultiplier);
+
+            spawnerInfo.Initialize();
             bodyInfo.Initialize(PhysicalType.Ship);
-            rotationSpeed = rotationSpeed / 180f * (float)Math.PI;
         }
     }
 }
