@@ -7,7 +7,7 @@ using AndroidGame.Serialization;
 
 namespace AndroidGame.Controllers
 {
-    class ProjectilesController : IController
+    public class ProjectilesController : IController
     {
         private List<List<Projectile>> activeProjectiles;
         private List<List<Projectile>> inactiveProjectiles;
@@ -19,11 +19,14 @@ namespace AndroidGame.Controllers
 
         private const int projectilesStartCount = 30;
 
-        public ProjectilesController(ContentManager Content, SerializationManager serializationManager)
+        private ParticleSystem particleSystem;
+
+        public ProjectilesController(ContentManager Content, SerializationManager serializationManager, ParticleSystem pSystem)
         {
             activeProjectiles = new List<List<Projectile>>();
             inactiveProjectiles = new List<List<Projectile>>();
             projectilesInfo = serializationManager.LoadInfo<ProjectileInfo>("Projectiles");
+            particleSystem = pSystem;
             projectilesSprites = new Texture2D[projectilesInfo.Length];
 
             for (int i = 0; i < projectilesSprites.Length; i++)
@@ -40,7 +43,7 @@ namespace AndroidGame.Controllers
                 activeProjectiles.Add(new List<Projectile>());
             }
             for (int i = 0; i < count; i++)
-                inactiveProjectiles[info.projectileType].Add(new Projectile(info, projectilesSprites));
+                inactiveProjectiles[info.projectileType].Add(new Projectile(info, projectilesSprites, particleSystem));
         }
         private void RemoveProjectile(int projectileType, int index)
         {
@@ -51,12 +54,12 @@ namespace AndroidGame.Controllers
                 inactiveProjectiles[projectileType].RemoveAt(inactiveProjectiles.Count - 1);
         }
 
-        public void LaunchProjectile(Vector2 pos, Vector2 dir, float damage, int team, int projectileType)
+        public void LaunchProjectile(Vector2 pos, Vector2 dir, Vector2 velocity, float damage, int team, int projectileType)
         {
             if (inactiveProjectiles.Count <= projectileType || inactiveProjectiles[projectileType].Count == 0)
                 CreateProjectiles(projectilesInfo[projectileType], 5);
             Projectile projectile = inactiveProjectiles[projectileType][inactiveProjectiles.Count - 1];
-            projectile.Launch(pos, dir, damage, team);
+            projectile.Launch(pos, dir, velocity, damage, team);
             activeProjectiles[projectileType].Add(projectile);
             inactiveProjectiles[projectileType].RemoveAt(inactiveProjectiles.Count - 1);
         }

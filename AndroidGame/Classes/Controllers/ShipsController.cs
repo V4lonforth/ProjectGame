@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using AndroidGame.GameObjects.Ships;
 using AndroidGame.Serialization;
 using AndroidGame.Geometry;
+using NetworkLib;
 
 namespace AndroidGame.Controllers
 {
@@ -12,6 +13,7 @@ namespace AndroidGame.Controllers
     {
         private LootController lootController;
         private ProjectilesController projectilesController;
+        private ParticleSystem particleSystem;
 
         private List<Ship> ships;
         private List<Ship> shipsPlayers;
@@ -24,7 +26,7 @@ namespace AndroidGame.Controllers
 
         private const string shipSpritesPath = "Sprites/Ships/Ship";
 
-        public ShipsController(ContentManager Content, SerializationManager serializationManager, LootController lController, ProjectilesController pController)
+        public ShipsController(ContentManager Content, SerializationManager serializationManager, LootController lController, ProjectilesController projController, ParticleSystem parSystem)
         {
             shipsInfo = serializationManager.LoadInfo<ShipInfo>("Ships");
             shipSprites = new Texture2D[shipsInfo.Length];
@@ -33,12 +35,13 @@ namespace AndroidGame.Controllers
             ships = new List<Ship>();
             shipsPlayers = new List<Ship>();
             lootController = lController;
-            projectilesController = pController;
+            projectilesController = projController;
+            particleSystem = parSystem;
         }
 
-        public PlayerShip CreatePlayerShip(Vector2 pos, Vector2 dir, int shipType = 0, int team = 1)
+        public PlayerShip CreatePlayerShip(Vector2 pos, Connection connection, int shipType = 1, int team = 1)
         {
-            PlayerShip playerShip = new PlayerShip(shipsInfo[shipType], shipSprites, projectilesController, team, pos, dir);
+            PlayerShip playerShip = new PlayerShip(shipsInfo[shipType], shipSprites, projectilesController, particleSystem, team, pos, connection);
             AddShip(playerShip);
             return playerShip;
         }
@@ -61,8 +64,7 @@ namespace AndroidGame.Controllers
             foreach (Ship ship in shipsPlayers)
             {
                 Vector2 position = Functions.RandomVector2(minSpawnDistance, maxSpawnDistance) + ship.Position;
-                Vector2 direction = Functions.RandomVector2();
-                AIShip newShip = new AIShip(shipsInfo[type], shipSprites, projectilesController, 0, position, direction, shipsPlayers);
+                AIShip newShip = new AIShip(shipsInfo[type], shipSprites, projectilesController, particleSystem, 0, position, shipsPlayers);
                 AddShip(newShip);
             }
         }

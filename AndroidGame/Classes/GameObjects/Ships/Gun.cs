@@ -2,17 +2,21 @@
 using AndroidGame.Serialization;
 using AndroidGame.Controllers;
 using AndroidGame.Geometry;
+using AndroidGame.GameObjects.Base;
 
 namespace AndroidGame.GameObjects.Ships
 {
-    class Gun
+    public class Gun
     {
+        private PhysicalObject parent;
+
         private Vector2[] shootStartPositions;
         private int positionIndex;
 
         private float shootTime;
         private float timeToShoot;
 
+        private float projectileSpeed;
         private float damage;
 
         private int projectilesType;
@@ -22,8 +26,10 @@ namespace AndroidGame.GameObjects.Ships
 
         private ProjectilesController projectilesController;
 
-        public Gun(GunInfo gunInfo, ProjectilesController pController, int team)
+        public Gun(PhysicalObject par, GunInfo gunInfo, ProjectilesController pController, int team)
         {
+            parent = par;
+            projectileSpeed = gunInfo.projectileSpeed;
             shootTime = 1f / gunInfo.shootRate;
             projectilesType = gunInfo.projectilesType;
             shootStartPositions = gunInfo.shootPositions;
@@ -35,13 +41,13 @@ namespace AndroidGame.GameObjects.Ships
             this.team = team;
         }
         
-        public void Update(Vector2 parentPos, Vector2 parentDir, float deltaTime)
+        public void Update(float deltaTime)
         {
             if (timeToShoot <= 0f)
             {
                 if (IsShooting)
                 {
-                    projectilesController.LaunchProjectile(Functions.RotateVector2(shootStartPositions[positionIndex], parentDir) + parentPos, parentDir, damage, team, projectilesType);
+                    projectilesController.LaunchProjectile(Functions.RotateVector2(shootStartPositions[positionIndex], parent.LookingDirection) + parent.Position, parent.LookingDirection, parent.LookingDirection * projectileSpeed + parent.MovementDirection * parent.Speed, damage, team, projectilesType);
                     positionIndex = (positionIndex + 1) % shootStartPositions.Length;
                     timeToShoot = shootTime;
                 }

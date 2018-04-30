@@ -8,36 +8,23 @@ using AndroidGame.GameObjects.Base;
 
 namespace AndroidGame.GameObjects.Ships
 {
-    class Ship : PhysicalObjectAcc, IPhysicalObject
+    public class Ship : BaseShip, IPhysicalObject
     {
+        private ParticleSpawner particleSpawner;
+
         private Gun gun;
 
-        private float rotationSpeed;
         private float timeToRotateLeft;
-        
-        private float health;
-
-        public int Team { get; private set; }
-        public bool IsDestroyed { get; private set; }
-
-        public float DroppingExperience { get; protected set; }
-
         private const float timeToRotate = 0.6f;
 
-        public Ship(ShipInfo shipInfo, Texture2D[] shipSprites, ProjectilesController pController, int team, Vector2 pos, Vector2 dir) 
-            : base(new Drawable(shipSprites[shipInfo.shipType]), shipInfo.maxSpeed, shipInfo.acceleration, PhysicalObjectType.Ship, pos, dir, dir, shipInfo.bodyInfo)
+        public Ship(ShipInfo shipInfo, Texture2D[] shipSprites, ProjectilesController projController, ParticleSystem parSystem, int team, Vector2 pos) 
+            : base(shipInfo, new Drawable(shipSprites[shipInfo.shipType], size: shipInfo.spriteSize, col: shipInfo.color), team, pos)
         {
-            gun = new Gun(shipInfo.gunInfo, pController, team);
-            IsDestroyed = false;
-            Team = team;
-            health = shipInfo.health;
+            gun = new Gun(this, shipInfo.gunInfo, projController, team);
+            particleSpawner = new ParticleSpawner(parSystem, this, shipInfo.spawnerInfo);
             rotationSpeed = shipInfo.rotationSpeed;
         }
 
-        private void Destroy()
-        {
-            IsDestroyed = true;
-        }
 
         public void SetMovementDirection(Vector2 dir)
         {
@@ -66,32 +53,15 @@ namespace AndroidGame.GameObjects.Ships
         public new void Update(float deltaTime)
         {
             base.Update(deltaTime);
-            gun.Update(Position, LookingDirection, deltaTime);
+            particleSpawner.Update(deltaTime);
+            gun.Update(deltaTime);
             if (!gun.IsShooting)
             {
                 timeToRotateLeft -= deltaTime;
                 if (timeToRotateLeft <= 0f && isAccelerating)
-                    LookingDirection = Functions.CircleLerp(LookingDirection, MovementDirection, rotationSpeed);
+                    LookingDirection = Functions.CircleLerp(LookingDirection, MovementDirection, rotationSpeed * deltaTime);
             }
         }
         
-        protected override bool OnCollision(Body body)
-        {
-            switch (body.Parent.Type)
-            {
-                case PhysicalObjectType.Projectile:
-                    if (((Projectile)body.Parent).Team != Team)
-                    {
-                        health -= ((Projectile)body.Parent).Damage;
-                        if (health <= 0f)
-                        {
-                            Destroy();
-                            return true;
-                        }
-                    }
-                    return false;
-            }
-            return false;
-        }
     }
 }

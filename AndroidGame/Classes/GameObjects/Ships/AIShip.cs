@@ -25,7 +25,7 @@ namespace AndroidGame.GameObjects.Ships
 
         private List<Ship> enemies;
         
-        public AIShip(ShipInfo shipInfo, Texture2D[] shipPartSprites, ProjectilesController pController, int team, Vector2 pos, Vector2 dir, List<Ship> ships) : base(shipInfo, shipPartSprites, pController, team, pos, dir)
+        public AIShip(ShipInfo shipInfo, Texture2D[] shipPartSprites, ProjectilesController projController, ParticleSystem parSystem, int team, Vector2 pos, List<Ship> ships) : base(shipInfo, shipPartSprites, projController, parSystem, team, pos)
         {
             enemies = ships;
             state = ActionState.Moving;

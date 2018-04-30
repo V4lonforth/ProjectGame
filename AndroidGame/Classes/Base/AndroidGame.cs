@@ -32,7 +32,7 @@ namespace AndroidGame
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            controller = new GameController(Content);
+            controller = new GameController(Content, GraphicsDevice);
         }
         
         protected override void UnloadContent()
@@ -54,11 +54,7 @@ namespace AndroidGame
         {
             GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Begin();
-
             controller.Draw(spriteBatch);
-
-            spriteBatch.End();
 
             base.Draw(gameTime);
         }

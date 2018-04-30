@@ -4,41 +4,69 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using AndroidGame.Serialization;
 using AndroidGame.GameObjects.Ships;
+using AndroidGame.GUI;
+using NetworkLib;
 
 namespace AndroidGame.Controllers
 {
     class GameController : IController
     {
         private IController[] controllers;
-        
-        public GameController(ContentManager Content)
+        private GUIController GUIController;
+
+        private ParticleSystem particleSystem;
+        private Camera camera;
+
+        public GameController(ContentManager Content, GraphicsDevice graphicsDevice)
         {
+            Connection connection = new Connection("127.0.0.1", 4400, "127.0.0.1", 4401);
+
             SerializationManager serializationManager = new SerializationManager();
 
-            ProjectilesController projectilesController = new ProjectilesController(Content, serializationManager);
+            camera = new Camera(GUIController.screenSize);
+            particleSystem = new ParticleSystem(Content, camera, graphicsDevice);
+
+            ProjectilesController projectilesController = new ProjectilesController(Content, serializationManager, particleSystem);
             LootController lootController = new LootController(Content);
-            ShipsController shipsController = new ShipsController(Content, serializationManager, lootController, projectilesController);
-            PlayerShip playerShip = shipsController.CreatePlayerShip(Vector2.One * 250, Vector2.UnitX);
-            GUIController GUIController = new GUIController(Content, playerShip.SetMovementDirection, playerShip.SetAttackDirection);
+            ShipsController shipsController = new ShipsController(Content, serializationManager, lootController, projectilesController, particleSystem);
+            PlayerShip playerShip = shipsController.CreatePlayerShip(Vector2.One * 250, connection);
+            camera.Target = playerShip;
+            GUIController = new GUIController(Content, playerShip.SetMovementDirection, playerShip.SetAttackDirection);
+
 
             controllers = new IController[]
             {
                 projectilesController,
                 lootController,
-                shipsController,
-                GUIController
+                shipsController
             };
         }
 
         public void Update(float deltaTime)
         {
+            particleSystem.Update(deltaTime);
+
+            camera.Update(deltaTime);
+
             foreach (IController controller in controllers)
                 controller.Update(deltaTime);
+
+            GUIController.Update(deltaTime);
         }
         public void Draw(SpriteBatch spriteBatch)
         {
+            spriteBatch.Begin(transformMatrix: camera.TransformMatrix);
+
+            particleSystem.Draw();
             foreach (IController controller in controllers)
                 controller.Draw(spriteBatch);
+
+            spriteBatch.End();
+
+            spriteBatch.Begin();
+            GUIController.Draw(spriteBatch);
+            spriteBatch.End();
+
         }
     }
 }
