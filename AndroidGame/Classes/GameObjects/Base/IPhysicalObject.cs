@@ -2,7 +2,7 @@
 
 namespace AndroidGame.GameObjects.Base
 {
-    interface IPhysicalObject
+    public interface IPhysicalObject
     {
         void Update(float deltaTime);
         void Draw(SpriteBatch spriteBatch);

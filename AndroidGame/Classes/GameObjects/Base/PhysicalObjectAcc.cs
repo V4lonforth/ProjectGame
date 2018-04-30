@@ -22,17 +22,17 @@ namespace AndroidGame.GameObjects.Base
         {
             if (isAccelerating)
             {
-                if (speed < maxSpeed)
-                    speed += acceleration * deltaTime;
+                if (Speed < maxSpeed)
+                    Speed += acceleration * deltaTime;
                 else
-                    speed = maxSpeed;
+                    Speed = maxSpeed;
             }
             else
             {
-                if (speed > 0f)
-                    speed -= acceleration * deltaTime;
+                if (Speed > 0f)
+                    Speed -= acceleration * deltaTime;
                 else
-                    speed = 0f;
+                    Speed = 0f;
             }
             base.Update(deltaTime);
         }

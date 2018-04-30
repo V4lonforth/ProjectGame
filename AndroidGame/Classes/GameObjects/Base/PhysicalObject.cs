@@ -37,7 +37,7 @@ namespace AndroidGame.GameObjects.Base
             }
         }
 
-        protected float speed;
+        public float Speed { get; protected set; }
         
         public PhysicalObjectType Type { get; private set; }
         
@@ -48,13 +48,13 @@ namespace AndroidGame.GameObjects.Base
             Position = pos;
             MovementDirection = movDir;
             LookingDirection = lookDir;
-            speed = sp;
+            Speed = sp;
             Type = t;
         }
         
         public void Update(float deltaTime)
         {
-            Position += speed * deltaTime * MovementDirection;
+            Position += Speed * deltaTime * MovementDirection;
         }
         public void Draw(SpriteBatch spriteBatch)
         {
