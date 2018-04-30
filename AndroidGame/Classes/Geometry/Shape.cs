@@ -12,6 +12,8 @@ namespace AndroidGame.Geometry
 
         public abstract void Move(Shape baseShape, Vector2 offset);
         public abstract void Rotate(Shape baseShape, Vector2 dir);
+
+        public abstract void ChangeSize(float multiplier);
         
         public abstract float GetMaxDistance();
     }

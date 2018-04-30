@@ -41,21 +41,17 @@ namespace AndroidGame.Geometry
             return vector;
         }
 
-        public static float Lerp(float a, float b, float t)
+        public static float Interpolate(float a, float b, float t)
         {
             return (b - a) * t + a;
         }
-        public static Vector2 Lerp(Vector2 a, Vector2 b, float t)
+        public static Vector2 Interpolate(Vector2 a, Vector2 b, float t)
         {
-            a.X = Lerp(a.X, b.X, t);
-            a.Y = Lerp(a.Y, b.Y, t);
+            a.X = Interpolate(a.X, b.X, t);
+            a.Y = Interpolate(a.Y, b.Y, t);
             return a;
         }
-        public static Vector2 CircleLerp(Vector2 a, Vector2 b, float speed)
-        {
-            float angle = CircleLerp((float)Math.Atan2(a.Y, a.X), (float)Math.Atan2(b.Y, b.X), speed);
-            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
-        }
+
         public static float CircleLerp(float a, float b, float speed)
         {
             if (a > b)
@@ -102,6 +98,19 @@ namespace AndroidGame.Geometry
             }
             return a;
         }
+        public static Vector2 CircleLerp(Vector2 a, Vector2 b, float speed)
+        {
+            float angle = CircleLerp((float)Math.Atan2(a.Y, a.X), (float)Math.Atan2(b.Y, b.X), speed);
+            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+        }
+
+        public static Vector2 CircleInterpolate(Vector2 a, Vector2 b, float t)
+        {
+            float firstAngle = (float)Math.Atan2(a.Y, a.X);
+            float secondAngle = (float)Math.Atan2(b.Y, b.X);
+            float angle = CircleLerp(firstAngle, secondAngle, t * Math.Abs(firstAngle - secondAngle));
+            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+        }
 
         public static float DotProduct(Vector2 vector1, Vector2 vector2)
         {
@@ -110,6 +119,11 @@ namespace AndroidGame.Geometry
         public static float CrossProduct(Vector2 vector1, Vector2 vector2)
         {
             return vector1.X * vector2.Y - vector1.Y * vector2.X;
+        }
+
+        public static float DegreeToRadians(float degree)
+        {
+            return degree / 180f * (float)Math.PI;
         }
     }
 }

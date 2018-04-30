@@ -63,5 +63,11 @@ namespace AndroidGame.Geometry
                 maxDistance = Math.Max(maxDistance, vertices[i].Length());
             return maxDistance;
         }
+
+        public override void ChangeSize(float multiplier)
+        {
+            for (int i = 0; i < vertices.Length; i++)
+                vertices[i] *= multiplier;
+        }
     }
 }

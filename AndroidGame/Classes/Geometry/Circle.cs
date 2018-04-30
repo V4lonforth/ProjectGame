@@ -33,5 +33,11 @@ namespace AndroidGame.Geometry
         {
             return centre.Length() + radius;
         }
+
+        public override void ChangeSize(float multiplier)
+        {
+            centre *= multiplier;
+            radius *= multiplier;
+        }
     }
 }
