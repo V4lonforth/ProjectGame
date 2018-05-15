@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using AndroidGame.Serialization;
 using AndroidGame.Geometry;
 using AndroidGame.Controllers;
+using AndroidGame.GameObjects.Base;
 
 namespace AndroidGame.GameObjects.Ships
 {
@@ -23,9 +24,9 @@ namespace AndroidGame.GameObjects.Ships
         private float rotationspeed;
         private float actionTimeLeft;
 
-        private List<Ship> enemies;
+        private List<IPhysicalObject> enemies;
         
-        public AIShip(ShipInfo shipInfo, Texture2D[] shipPartSprites, ProjectilesController projController, ParticleSystem parSystem, int team, Vector2 pos, List<Ship> ships) : base(shipInfo, shipPartSprites, projController, parSystem, team, pos)
+        public AIShip(ShipInfo shipInfo, Texture2D[] shipPartSprites, ProjectilesController projController, ParticleSystem parSystem, int team, Vector2 pos, List<IPhysicalObject> ships) : base(shipInfo, shipPartSprites, projController, parSystem, team, pos)
         {
             enemies = ships;
             state = ActionState.Moving;

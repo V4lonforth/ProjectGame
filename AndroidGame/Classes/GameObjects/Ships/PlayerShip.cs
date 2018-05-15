@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using AndroidGame.Controllers;
 using AndroidGame.GameObjects.Base;
@@ -9,15 +10,15 @@ namespace AndroidGame.GameObjects.Ships
 {
     class PlayerShip : Ship, IPhysicalObject
     {
-        private Connection connection;
-
         public float CurrentExperience { get; private set; }
         public float NextLevelExperience { get; private set; }
 
-        public PlayerShip(ShipInfo shipInfo, Texture2D[] shipPartSprites, ProjectilesController projController, ParticleSystem parSystem, int team, Vector2 pos, Connection connect) 
+        private int gameTime ;
+
+        public PlayerShip(ShipInfo shipInfo, Texture2D[] shipPartSprites, ProjectilesController projController, ParticleSystem parSystem, int team, Vector2 pos) 
             : base(shipInfo, shipPartSprites, projController, parSystem, team, pos)
         {
-            connection = connect;
+            gameTime = 0;
         }
 
         public void GainExperience(float exp)
@@ -32,23 +33,6 @@ namespace AndroidGame.GameObjects.Ships
         private void GainLevel()
         {
 
-        }
-
-        public new void Update(float deltaTime)
-        {
-            base.Update(deltaTime);
-
-            connection.SendShipData(new ShipData[]
-                {
-                    new ShipData()
-                    {
-                        lookingDirection = LookingDirection,
-                        movementDirection = MovementDirection,
-                        position = Position,
-                        speed = Speed,
-                        time = deltaTime
-                    }
-                });
         }
     }
 }

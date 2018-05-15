@@ -98,6 +98,7 @@
     <Compile Include="Classes\Serialization\ProjectileInfo.cs" />
     <Compile Include="Classes\Serialization\SerializationManager.cs" />
     <Compile Include="Classes\Serialization\ShipInfo.cs" />
+    <Compile Include="Player.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

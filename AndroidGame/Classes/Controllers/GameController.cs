@@ -19,8 +19,6 @@ namespace AndroidGame.Controllers
 
         public GameController(ContentManager Content, GraphicsDevice graphicsDevice)
         {
-            Connection connection = new Connection("127.0.0.1", 4400, "127.0.0.1", 4401);
-
             SerializationManager serializationManager = new SerializationManager();
 
             camera = new Camera(GUIController.screenSize);
@@ -29,7 +27,7 @@ namespace AndroidGame.Controllers
             ProjectilesController projectilesController = new ProjectilesController(Content, serializationManager, particleSystem);
             LootController lootController = new LootController(Content);
             ShipsController shipsController = new ShipsController(Content, serializationManager, lootController, projectilesController, particleSystem);
-            PlayerShip playerShip = shipsController.CreatePlayerShip(Vector2.One * 250, connection);
+            PlayerShip playerShip = shipsController.CreatePlayerShip(Vector2.One * 250);
             camera.Target = playerShip;
             GUIController = new GUIController(Content, playerShip.SetMovementDirection, playerShip.SetAttackDirection);
 

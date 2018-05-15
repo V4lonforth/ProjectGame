@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using AndroidGame.GameObjects.Ships;
 using AndroidGame.Serialization;
 using AndroidGame.Geometry;
+using AndroidGame.GameObjects.Base;
 using NetworkLib;
 
 namespace AndroidGame.Controllers
@@ -15,8 +16,8 @@ namespace AndroidGame.Controllers
         private ProjectilesController projectilesController;
         private ParticleSystem particleSystem;
 
-        private List<Ship> ships;
-        private List<Ship> shipsPlayers;
+        private List<IPhysicalObject> ships;
+        private List<IPhysicalObject> shipsPlayers;
 
         private const float minSpawnDistance = 300f;
         private const float maxSpawnDistance = 500f;
@@ -32,16 +33,16 @@ namespace AndroidGame.Controllers
             shipSprites = new Texture2D[shipsInfo.Length];
             for (int i = 0; i < shipSprites.Length; i++)
                 shipSprites[i] = Content.Load<Texture2D>(shipSpritesPath + i.ToString());
-            ships = new List<Ship>();
-            shipsPlayers = new List<Ship>();
+            ships = new List<IPhysicalObject>();
+            shipsPlayers = new List<IPhysicalObject>();
             lootController = lController;
             projectilesController = projController;
             particleSystem = parSystem;
         }
 
-        public PlayerShip CreatePlayerShip(Vector2 pos, Connection connection, int shipType = 1, int team = 1)
+        public PlayerShip CreatePlayerShip(Vector2 pos, int shipType = 1, int team = 1)
         {
-            PlayerShip playerShip = new PlayerShip(shipsInfo[shipType], shipSprites, projectilesController, particleSystem, team, pos, connection);
+            PlayerShip playerShip = new PlayerShip(shipsInfo[shipType], shipSprites, projectilesController, particleSystem, team, pos);
             AddShip(playerShip);
             return playerShip;
         }
@@ -73,11 +74,12 @@ namespace AndroidGame.Controllers
         {
             for (int i = 0; i < ships.Count; i++)
             {
-                if (ships[i].IsDestroyed)
+                Ship ship = (Ship)ships[i];
+                if (ship.IsDestroyed)
                 {
                     ships.RemoveAt(i);
                     i--;
-                    lootController.AddLoot(ships[i].DroppingExperience, ships[i].Position);
+                    lootController.AddLoot(ship.DroppingExperience, ship.Position);
                 }
                 else
                     ships[i].Update(deltaTime);
