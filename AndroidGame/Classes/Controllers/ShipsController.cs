@@ -1,20 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using AndroidGame.GameObjects.Ships;
-using AndroidGame.Serialization;
-using AndroidGame.Geometry;
-using AndroidGame.GameObjects.Base;
-using NetworkLib;
+using AndroidGame.Net;
+using AndroidGame.GUI;
+using GameLib.Info;
+using GameLib.Geometry;
+using GameLib.GameObjects.Base;
+using GameLib.Controllers;
 
 namespace AndroidGame.Controllers
 {
-    class ShipsController : IController
+    class ShipsController : IDrawablesController
     {
-        private LootController lootController;
-        private ProjectilesController projectilesController;
+        private BaseLootController lootController;
+        private BaseProjectilesController projectilesController;
         private ParticleSystem particleSystem;
+
+        private Camera camera;
+
+        private Action<Action<Vector2>, Action<Vector2>> joystickActions;
 
         private List<IPhysicalObject> ships;
         private List<IPhysicalObject> shipsPlayers;
@@ -23,16 +30,20 @@ namespace AndroidGame.Controllers
         private const float maxSpawnDistance = 500f;
 
         private ShipInfo[] shipsInfo;
-        private Texture2D[] shipSprites;
+        private const int shipsTypesCount = 2;
 
         private const string shipSpritesPath = "Sprites/Ships/Ship";
 
-        public ShipsController(ContentManager Content, SerializationManager serializationManager, LootController lController, ProjectilesController projController, ParticleSystem parSystem)
+        public ShipsController(ContentManager Content, BaseLootController lController, BaseProjectilesController projController, ParticleSystem parSystem, 
+            Camera cam, Action<Action<Vector2>, Action<Vector2>> actions)
         {
-            shipsInfo = serializationManager.LoadInfo<ShipInfo>("Ships");
-            shipSprites = new Texture2D[shipsInfo.Length];
-            for (int i = 0; i < shipSprites.Length; i++)
+            joystickActions = actions;
+            camera = cam;
+            Texture2D[] shipSprites = new Texture2D[shipsTypesCount];
+            for (int i = 0; i < shipsTypesCount; i++)
                 shipSprites[i] = Content.Load<Texture2D>(shipSpritesPath + i.ToString());
+            shipsInfo = ShipInfo.GetShipsInfo(shipSprites);
+
             ships = new List<IPhysicalObject>();
             shipsPlayers = new List<IPhysicalObject>();
             lootController = lController;
@@ -40,32 +51,36 @@ namespace AndroidGame.Controllers
             particleSystem = parSystem;
         }
 
-        public PlayerShip CreatePlayerShip(Vector2 pos, int shipType = 1, int team = 1)
+        public ShipController CreatePlayerShip(Sender sender, Vector2 pos, int id, int shipType = 0, int team = 1)
         {
-            PlayerShip playerShip = new PlayerShip(shipsInfo[shipType], shipSprites, projectilesController, particleSystem, team, pos);
+            ShipController shipController = new ShipController();
+            PlayerShip playerShip = new PlayerShip(shipsInfo[shipType], projectilesController, particleSystem, team, pos, id, sender, shipController);
+            shipController.SetShip(playerShip);
             AddShip(playerShip);
-            return playerShip;
+            camera.Target = playerShip;
+            joystickActions(playerShip.SetMovementDirection, playerShip.SetAttackDirection);
+            return shipController;
         }
 
         public void RemoveShip(Ship ship)
         {
             ships.Remove(ship);
-            if (ship.GetType() == typeof(PlayerShip))
+            if (ship.GetType() == typeof(EnemyPlayerShip))
                 shipsPlayers.Remove(ship);
         }
         public void AddShip(Ship ship)
         {
             ships.Add(ship);
-            if (ship.GetType() == typeof(PlayerShip))
+            if (ship.GetType() == typeof(EnemyPlayerShip))
                 shipsPlayers.Add(ship);
         }
 
-        public void CreateAIShip(int type)
+        public void CreateAIShip(int type, int id)
         {
             foreach (Ship ship in shipsPlayers)
             {
                 Vector2 position = Functions.RandomVector2(minSpawnDistance, maxSpawnDistance) + ship.Position;
-                AIShip newShip = new AIShip(shipsInfo[type], shipSprites, projectilesController, particleSystem, 0, position, shipsPlayers);
+                AIShip newShip = new AIShip(shipsInfo[type], projectilesController, particleSystem, 0, position, id);
                 AddShip(newShip);
             }
         }

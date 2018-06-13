@@ -1,13 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
+using GameLib.Controllers;
+using GameLib.GameObjects;
+using GameLib.Info;
+using Microsoft.Xna.Framework;
 using NetworkLib;
+using NetworkLib.Data;
 
 namespace Server
 {
     class Room
     {
         private TcpConnector connector;
+        private Udp udp;
+
+        //private ProjectilesController projectilesController;
+
+        private StructConverter structConverter;
 
         private List<Player> players;
         private int lastId;
@@ -15,19 +26,24 @@ namespace Server
         private double lastIterationTime;
         private int gameTime;
 
+        private bool roomClosed;
+
+        private ShipInfo[] shipsInfo;
+        private BaseProjectilesController projectilesController;
+
         private const double iterationTime = 1d / 60d;
 
-        private const string localAddress = "192.168.43.91";
-        private const int listeningPort = 4400;
-
-        private const int sendingPort = 4401;
-
-        public Room()
+        public Room(int listeningPort, int sendingPort, ShipInfo[] ships)
         {
+            shipsInfo = ships;
+            roomClosed = false;
             lastId = 0;
             players = new List<Player>();
-
-            connector = new TcpConnector(localAddress, listeningPort, sendingPort);
+            structConverter = new StructConverter();
+            //projectilesController = new ProjectilesController();
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, listeningPort);
+            udp = new Udp(localEndPoint);
+            connector = new TcpConnector(localEndPoint);
         }
 
         public void StartGame()
@@ -36,28 +52,57 @@ namespace Server
             lastIterationTime = DateTime.UtcNow.TimeOfDay.TotalSeconds;
         }
 
-        public bool TryConnect()
+        private bool TryConnect()
         {
             Socket socket = connector.Connect();
             if (socket != null)
             {
                 lastId++;
                 Tcp tcp = new Tcp(socket);
-                players.Add(new Player(lastId, tcp));
+                BaseShip ship = new BaseShip(shipsInfo[0], null, lastId, Vector2.Zero, lastId);
+                Player player = new Player(lastId, tcp, shipsInfo, projectilesController);
+                players.Add(player);
+                CreateShipActionData data = player.CreateShip();
+                structConverter.ConvertStructToBytes(data, DataType.CreateShipAction, out byte[] bytes);
+                foreach (Player pl in players)
+                    pl.SendTcpData(bytes);
                 return true;
             }
             return false;
         }
         
-        public void Update()
+        private void Receive()
         {
-            if (DateTime.UtcNow.TimeOfDay.TotalSeconds - lastIterationTime >= iterationTime)
+            foreach (Player player in players)
+            {
+                player.ReceiveTcpData();
+                player.ReceiveUdpData(udp);
+            }
+        }
+
+        private void Update()
+        {
+            double time = DateTime.UtcNow.TimeOfDay.TotalSeconds;
+            if (time - lastIterationTime >= iterationTime)
             {
                 gameTime++;
-                lastIterationTime = DateTime.UtcNow.TimeOfDay.TotalSeconds;
-                Console.WriteLine("Server: game time: {1}, time: {0}", lastIterationTime, gameTime);
+                lastIterationTime = time;
+                ShipStateData[] shipsStateData = new ShipStateData[players.Count];
+                for (int i = 0; i < players.Count; i++)
+                    shipsStateData[i] = players[i].GetShipStateData(time - 0.2d);
+                structConverter.ConvertStructsToBytes(shipsStateData, DataType.ShipState, out byte[] bytes);
                 foreach (Player player in players)
-                    player.Update();
+                    udp.SendTo(bytes, player.PlayerEndPoint);
+            }
+        }
+        
+        public void Work()
+        {
+            while (!roomClosed)
+            {
+                TryConnect();
+                Receive();
+                Update();
             }
         }
     }

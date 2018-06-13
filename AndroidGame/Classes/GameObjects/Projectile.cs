@@ -1,68 +1,35 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using AndroidGame.Physics;
-using AndroidGame.Serialization;
+﻿using AndroidGame.Controllers;
 using AndroidGame.GameObjects.Base;
-using AndroidGame.GameObjects.Ships;
-using AndroidGame.Controllers;
-using AndroidGame.Geometry;
+using GameLib.GameObjects;
+using GameLib.GameObjects.Base;
+using GameLib.Info;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AndroidGame.GameObjects
 {
-    public class Projectile : PhysicalObject, IPhysicalObject
+    public class Projectile : BaseProjectile, IProjectile, GameLib.GameObjects.Base.IDrawable
     {
         private ParticleSpawner particleSpawner;
+        private Drawable drawable;
 
-        public bool IsDestroyed { get; private set; }
-
-        public float Damage { get; private set; }
-        public int Team { get; private set; }
-
-        private float rotationSpeed;
-
-        private float timeToDestroy;
-        private const float liveTime = 5f;
-
-        public Projectile(ProjectileInfo info, Texture2D[] sprites, ParticleSystem particleSystem) 
-            : base(new Drawable(sprites[info.projectileType], size: info.spriteSize), 0, PhysicalObjectType.Projectile, Vector2.Zero, Vector2.Zero, Vector2.Zero, info.bodyInfo)
+        public Projectile(ProjectileInfo info, ParticleSystem particleSystem) : base(info)
         {
             particleSpawner = new ParticleSpawner(particleSystem, this, info.spawnerInfo);
-            rotationSpeed = info.rotationSpeed;
+            drawable = new Drawable(info.texture, size: info.spriteSize, col: info.color);
         }
-
-        public void Launch(Vector2 pos, Vector2 dir, Vector2 velocity, float damage, int team)
+        
+        public void Draw(SpriteBatch spriteBatch)
         {
-            Team = team;
-            IsDestroyed = false;
-            Position = pos;
-            LookingDirection = dir;
-            Speed = velocity.Length();
-            MovementDirection = velocity / Speed;
-            Damage = damage;
-            timeToDestroy = liveTime;
+            drawable.Draw(spriteBatch);
         }
 
         public new void Update(float deltaTime)
         {
             base.Update(deltaTime);
             particleSpawner.Update(deltaTime);
-            timeToDestroy -= deltaTime;
-            LookingDirection = Functions.RotateVector2(LookingDirection, rotationSpeed * deltaTime);
-            if (timeToDestroy <= 0f)
-                IsDestroyed = true;
-        }
-
-        protected override bool OnCollision(Body body)
-        {
-            switch(body.Parent.Type)
-            {
-                case PhysicalObjectType.Ship:
-                    if (((Ship)body.Parent).Team == Team)
-                        return false;
-                    IsDestroyed = true;
-                    return true;
-            }
-            return false;
+            drawable.Position = Position;
+            drawable.Rotation = (float)System.Math.Atan2(LookingDirection.Y, LookingDirection.X);
         }
     }
 }

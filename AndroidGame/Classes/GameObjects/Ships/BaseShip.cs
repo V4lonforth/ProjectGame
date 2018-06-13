@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using AndroidGame.GameObjects.Base;
 using AndroidGame.Physics;
 using AndroidGame.Serialization;
 using Microsoft.Xna.Framework;
+using NetworkLib.Data;
 
 namespace AndroidGame.GameObjects.Ships
 {
@@ -25,6 +25,8 @@ namespace AndroidGame.GameObjects.Ships
             IsDestroyed = false;
             Team = team;
         }
+
+        
 
         private void Destroy()
         {

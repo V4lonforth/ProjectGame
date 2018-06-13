@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Net;
 using System.Net.Sockets;
 
@@ -8,10 +7,8 @@ namespace NetworkLib
     public class Udp
     {
         private Socket socket;
-
+        
         private const int maxBufferSize = 1024;
-
-        private static int dataSize = Marshal.SizeOf(new ShipData());
 
         public Udp(EndPoint localEP)
         {
@@ -24,12 +21,11 @@ namespace NetworkLib
             this.socket = socket;
         }
 
-        public Exception Send(ref ShipData data, EndPoint remotePoint)
+        public Exception SendTo(byte[] bytes, EndPoint remotePoint)
         {
-            ConvertDataToBytes(data, out byte[] buffer);
             try
             {
-                socket.SendTo(buffer, remotePoint);
+                socket.SendTo(bytes, remotePoint);
             }
             catch (Exception e)
             {
@@ -38,7 +34,7 @@ namespace NetworkLib
             return null;
         }
 
-        public Exception Receive(ref ShipData data, ref EndPoint remotePoint)
+        public Exception ReceiveFrom(out byte[] bytes, ref EndPoint remotePoint)
         {
             if (socket.Available > 0)
             {
@@ -50,31 +46,15 @@ namespace NetworkLib
                 }
                 catch (Exception e)
                 {
+                    bytes = null;
                     return e;
                 }
-                ConvertBytesToData(buffer, ref data);
+                bytes = new byte[size];
+                Array.Copy(buffer, bytes, size);
                 return null;
             }
+            bytes = null;
             return null;
-        }
-
-        private void ConvertDataToBytes<T>(T data, out byte[] bytes)
-        {
-            int dataSize = Marshal.SizeOf(data);
-
-            bytes = new byte[dataSize];
-            IntPtr ptr = Marshal.AllocHGlobal(dataSize);
-
-            Marshal.StructureToPtr(data, ptr, true);
-            Marshal.Copy(ptr, bytes, 0, dataSize);
-            Marshal.FreeHGlobal(ptr);
-        }
-
-        private void ConvertBytesToData<T>(byte[] bytes, ref T data)
-        {
-            IntPtr ptr = Marshal.AllocHGlobal(dataSize);
-            Marshal.Copy(bytes, 0, ptr, dataSize);
-            data = (T)Marshal.PtrToStructure(ptr, typeof(T));
         }
     }
 }

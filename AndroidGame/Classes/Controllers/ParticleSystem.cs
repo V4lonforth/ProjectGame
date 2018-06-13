@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using AndroidGame.Geometry;
+using GameLib.Geometry;
 using AndroidGame.GUI;
 
 namespace AndroidGame.Controllers

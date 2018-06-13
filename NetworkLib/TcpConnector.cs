@@ -7,15 +7,9 @@ namespace NetworkLib
     {
         private TcpListener listener;
 
-        private int listeningPort;
-        private int sendingPort;
-
-        public TcpConnector(string localAddress, int listenPort, int sendPort)
+        public TcpConnector(IPEndPoint localEndPoint)
         {
-            listeningPort = listenPort;
-            sendingPort = sendPort;
-
-            listener = new TcpListener(IPAddress.Parse(localAddress), listeningPort - 2);
+            listener = new TcpListener(localEndPoint);
             listener.Start();
         }
 

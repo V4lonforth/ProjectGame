@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-using AndroidGame.Geometry;
-using AndroidGame.GameObjects.Base;
+using GameLib.Geometry;
+using GameLib.GameObjects.Base;
 
 namespace AndroidGame.GUI
 {
@@ -36,7 +36,8 @@ namespace AndroidGame.GUI
 
         public void Update(float deltaTime)
         {
-            cameraPosition = Functions.Interpolate(cameraPosition, Target.Position, lerpValue * deltaTime);
+            if (target != null)
+                cameraPosition = Functions.Interpolate(cameraPosition, Target.Position, lerpValue * deltaTime);
             TransformMatrix = Matrix.CreateTranslation(viewportCentre.X - cameraPosition.X, viewportCentre.Y - cameraPosition.Y, 0) * Matrix.CreateScale(size);
             Vector3 vec = Vector3.Transform(new Vector3(360, 640, 0), TransformMatrix);
         }

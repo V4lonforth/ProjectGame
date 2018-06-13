@@ -30,7 +30,7 @@ namespace NetworkLib
             socket = tcpSocket;
         }
 
-        public Tcp(IPEndPoint endPoint)
+        public Tcp(EndPoint endPoint)
         {
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(endPoint);

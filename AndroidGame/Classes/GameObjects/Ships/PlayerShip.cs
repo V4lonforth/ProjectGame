@@ -1,38 +1,62 @@
-﻿using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework;
+using AndroidGame.Net;
 using AndroidGame.Controllers;
-using AndroidGame.GameObjects.Base;
-using AndroidGame.Serialization;
-using NetworkLib;
+using GameLib.Info;
+using GameLib.Controllers;
+using GameLib.GameObjects;
+using NetworkLib.Data;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AndroidGame.GameObjects.Ships
 {
-    class PlayerShip : Ship, IPhysicalObject
+    class PlayerShip : Ship, IShip
     {
-        public float CurrentExperience { get; private set; }
-        public float NextLevelExperience { get; private set; }
+        private ShipController shipController;
+        private Sender sender;
 
-        private int gameTime ;
+        private InputData inputData;
+        private TimeData timeData;
 
-        public PlayerShip(ShipInfo shipInfo, Texture2D[] shipPartSprites, ProjectilesController projController, ParticleSystem parSystem, int team, Vector2 pos) 
-            : base(shipInfo, shipPartSprites, projController, parSystem, team, pos)
+        public PlayerShip(ShipInfo shipInfo, BaseProjectilesController projController, ParticleSystem parSystem, int team, Vector2 pos, int id, Sender send, ShipController shipController) 
+            : base(shipInfo, projController, parSystem, team, pos, id)
         {
-            gameTime = 0;
-        }
-
-        public void GainExperience(float exp)
-        {
-            CurrentExperience += exp;
-            if (CurrentExperience >= NextLevelExperience)
+            this.shipController = shipController;
+            sender = send;
+            timeData = new TimeData()
             {
-                CurrentExperience -= NextLevelExperience;
-                GainLevel();
-            }
+                dataNumber = 1,
+                time = AndroidGame.time
+            };
         }
-        private void GainLevel()
-        {
 
+        public new void SetMovementDirection(Vector2 dir)
+        {
+            base.SetMovementDirection(dir);
+            inputData.movementDirection = dir;
+        }
+        public new void SetAttackDirection(Vector2 dir)
+        {
+            base.SetAttackDirection(dir);
+            inputData.attackDirection = dir;
+        }
+        public new void GainExperience(float exp)
+        {
+            base.GainExperience(exp);
+        }
+
+        public void CreateShip(ShipInfo shipInfo, Vector2 position)
+        {
+        }
+
+        public new void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+            timeData.dataNumber++;
+            timeData.time = AndroidGame.time;
+            shipController.AddInputData(ref timeData, ref inputData);
+            sender.Add(DataType.Time, timeData);
+            sender.Add(DataType.Input, inputData);
+            sender.Send();
         }
     }
 }

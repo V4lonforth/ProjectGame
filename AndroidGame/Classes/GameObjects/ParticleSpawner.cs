@@ -1,8 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using AndroidGame.Controllers;
-using AndroidGame.Geometry;
-using AndroidGame.Serialization;
-using AndroidGame.GameObjects.Base;
+using GameLib.Geometry;
+using GameLib.Info;
+using GameLib.GameObjects.Base;
 
 namespace AndroidGame.GameObjects
 {
@@ -27,11 +27,13 @@ namespace AndroidGame.GameObjects
 
         private Vector2 prevDirection;
 
+        private bool isEnabled;
+
         private Color color;
 
         private const float minSpeedToSpawn = 30;
 
-        public ParticleSpawner(ParticleSystem system, PhysicalObject par, ParticleSpawnerInfo info)
+        public ParticleSpawner(ParticleSystem system, PhysicalObject par, ParticleSpawnerInfo info, bool enabled = true)
         {
             particleSystem = system;
             parent = par;
@@ -43,21 +45,25 @@ namespace AndroidGame.GameObjects
             speed = info.speed;
             deceleration = info.deceleration;
             color = info.color;
+            isEnabled = enabled;
         }
 
         public void Update(float deltaTime)
         {
-            if (spawnTimeLeft > 0f)
-                spawnTimeLeft -= deltaTime;
-            else if (parent.Speed > minSpeedToSpawn || prevDirection != parent.LookingDirection)
+            if (isEnabled)
             {
-                float particleSpeed = speed * parent.Speed;
-                float particleDeceleration = deceleration * particleSpeed;
-                spawnTimeLeft = spawnTime;
-                for (int i = 0; i < spawnPositions.Length; i++)
-                    particleSystem.CreateParticle(parent.Position + Functions.RotateVector2(spawnPositions[i], parent.LookingDirection), parent.LookingDirection, radius, parent.MovementDirection, particleSpeed, particleDeceleration, rotationSpeed, lifeTime, color);
+                if (spawnTimeLeft > 0f)
+                    spawnTimeLeft -= deltaTime;
+                else if (parent.Speed > minSpeedToSpawn || prevDirection != parent.LookingDirection)
+                {
+                    float particleSpeed = speed * parent.Speed;
+                    float particleDeceleration = deceleration * particleSpeed;
+                    spawnTimeLeft = spawnTime;
+                    for (int i = 0; i < spawnPositions.Length; i++)
+                        particleSystem.CreateParticle(parent.Position + Functions.RotateVector2(spawnPositions[i], parent.LookingDirection), parent.LookingDirection, radius, parent.MovementDirection, particleSpeed, particleDeceleration, rotationSpeed, lifeTime, color);
+                }
+                prevDirection = parent.LookingDirection;
             }
-            prevDirection = parent.LookingDirection;
         }
     }
 }

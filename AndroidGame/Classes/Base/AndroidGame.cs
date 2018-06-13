@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using AndroidGame.Controllers;
+using System;
 
 namespace AndroidGame
 {
@@ -10,7 +11,9 @@ namespace AndroidGame
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        private IController controller;
+        private IDrawablesController controller;
+
+        public static double time;
 
         public AndroidGame()
         {
@@ -26,6 +29,7 @@ namespace AndroidGame
         protected override void Initialize()
         {
             base.Initialize();
+            time = DateTime.UtcNow.TimeOfDay.TotalSeconds;
         }
         
         protected override void LoadContent()
@@ -42,10 +46,13 @@ namespace AndroidGame
 
         protected override void Update(GameTime gameTime)
         {
+            double currentTime = DateTime.UtcNow.TimeOfDay.TotalSeconds;
+            float deltaTime = (float)(currentTime - time);
+            time = currentTime;
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 Exit();
 
-            controller.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+            controller.Update(deltaTime);
 
             base.Update(gameTime);
         }
