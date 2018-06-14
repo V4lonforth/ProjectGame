@@ -8,6 +8,7 @@
         ShipState,
         InitialTime,
         Initialize,
-        CreateShipAction
+        CreateShipAction,
+        DestroyShipAction
     }
 }

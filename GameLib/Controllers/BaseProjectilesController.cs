@@ -6,7 +6,7 @@ using GameLib.GameObjects;
 
 namespace GameLib.Controllers
 {
-    public abstract class BaseProjectilesController : IController
+    public class BaseProjectilesController : IController
     {
         protected List<List<IProjectile>> activeProjectiles;
         protected List<List<IProjectile>> inactiveProjectiles;
@@ -54,9 +54,12 @@ namespace GameLib.Controllers
             if (inactiveProjectiles[projectileType].Count > projectilesStartCount)
                 inactiveProjectiles[projectileType].RemoveAt(inactiveProjectiles.Count - 1);
         }
-        protected abstract IProjectile CreateProjectile(ProjectileInfo info);
-
-        public virtual void LaunchProjectile(Vector2 pos, Vector2 dir, Vector2 velocity, float damage, int team, int projectileType)
+        protected virtual IProjectile CreateProjectile(ProjectileInfo info)
+        {
+            return new BaseProjectile(info);
+        }
+        
+        public void LaunchProjectile(Vector2 pos, Vector2 dir, Vector2 velocity, float damage, int team, int projectileType)
         {
             if (inactiveProjectiles.Count <= projectileType || inactiveProjectiles[projectileType].Count == 0)
                 CreateProjectiles(projectilesInfo[projectileType], 5);
@@ -72,13 +75,13 @@ namespace GameLib.Controllers
             {
                 for (int j = 0; j < activeProjectiles[i].Count; j++)
                 {
-                    if (activeProjectiles[i][j].IsDestroyed)
+                    if (activeProjectiles[i][j].IsActive)
+                        (activeProjectiles[i][j]).Update(deltaTime);
+                    else
                     {
                         RemoveProjectile(i, j);
                         j--;
                     }
-                    else
-                        (activeProjectiles[i][j]).Update(deltaTime);
                 }
             }
         }

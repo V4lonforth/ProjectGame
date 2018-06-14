@@ -10,6 +10,7 @@ namespace GameLib.Controllers
         private ShipStateData[] shipStatesData;
 
         private BaseShip ship;
+        private BaseShip testShip;
         private int shipCurrentStateNumber;
         
         private int count;
@@ -22,6 +23,7 @@ namespace GameLib.Controllers
         {
             get { return shipStatesData[FirstElementIndex].timeData.time; }
         }
+        private double lastTimeDataSent;
 
         public int FirstElementNumber
         {
@@ -48,11 +50,18 @@ namespace GameLib.Controllers
             get { return LastElementNumber % count; }
         }
 
+        private const double maxTimeDiff = 0.5d;
+        private const double iterationTime = 1d / 60d;
+
         public ShipController(int bufferSize = 100)
         {
             count = bufferSize;
             
             FirstElementNumber = 0;
+        }
+        public void SetShipToLastState()
+        {
+            ship.SetShipState(ref shipStatesData[FirstElementIndex].shipData, ref shipStatesData[FirstElementIndex].inputData);
         }
         public ShipStateData GetShipState(int number)
         {
@@ -64,14 +73,15 @@ namespace GameLib.Controllers
             while (number > LastElementNumber && shipStatesData[number % count].timeData.time > time)
                 number--;
             number %= count;
-            SetShipState(number);
-            (ship).Update((float)(time - shipStatesData[number].timeData.time));
+            ship.SetShipState(ref shipStatesData[number].shipData, ref shipStatesData[number].inputData);
+            ship.Update((float)(time - shipStatesData[number].timeData.time));
             shipCurrentStateNumber = -1;
+            lastTimeDataSent = time;
             return new ShipStateData()
             {
                 shipId = ship.Id,
                 inputData = shipStatesData[number].inputData,
-                shipData = ship.GetShipData(),
+                shipData = testShip.GetShipData(),
                 timeData = new TimeData()
                 {
                     time = time,
@@ -79,17 +89,34 @@ namespace GameLib.Controllers
                 }
             };
         }
-        public void CheckShipData(ref TimeData timeData, ref ShipData shipData)
+        public void CheckShipData(ref ShipStateData shipStateData)
         {
-            if (timeData.dataNumber < LastElementNumber || timeData.dataNumber > FirstElementNumber)
+            if (shipStateData.timeData.dataNumber <= LastElementNumber)
                 return;
-            shipStatesData[timeData.dataNumber % count].shipData = shipData;
-            CalculateShipDataStates(timeData.dataNumber, FirstElementNumber);
+            if (shipStateData.timeData.dataNumber > FirstElementNumber)
+            {
+                AddInputData(ref shipStateData.timeData, ref shipStateData.inputData);
+                shipStatesData[shipStateData.timeData.dataNumber % count].shipData = shipStateData.shipData;
+            }
+            else
+            {
+                shipStatesData[shipStateData.timeData.dataNumber % count] = shipStateData;
+                CalculateShipDataStates(shipStateData.timeData.dataNumber, FirstElementNumber);
+            }
         }
         public void AddInputData(ref TimeData timeData, ref InputData inputData)
         {
             if (timeData.dataNumber == FirstElementNumber + 1)
             {
+                if (timeData.time - Time > maxTimeDiff)
+                {
+                    SetInactive(FirstElementIndex);
+                    shipStatesData[FirstElementIndex].shipData = testShip.GetShipData();
+                    shipStatesData[FirstElementIndex].inputData = inputData;
+                    shipStatesData[FirstElementIndex].timeData = timeData;
+                }
+                else if (timeData.time < Time)
+                    return;
                 FirstElementNumber++;
                 shipStatesData[FirstElementIndex].inputData = inputData;
                 shipStatesData[FirstElementIndex].timeData = timeData;
@@ -97,12 +124,13 @@ namespace GameLib.Controllers
             }
             else if (timeData.dataNumber < LastElementNumber)
                 return;
-            else if (timeData.dataNumber >= LastElementNumber + count)
+            else if (timeData.dataNumber >= FirstElementNumber + count)
             {
-                shipStatesData[0].shipData = shipStatesData[FirstElementIndex].shipData;
-                FirstElementNumber = 0;
-                shipStatesData[0].timeData = timeData;
-                shipStatesData[0].inputData = inputData;
+                SetInactive(FirstElementIndex);
+                FirstElementNumber = timeData.dataNumber;
+                shipStatesData[FirstElementIndex].shipData = testShip.GetShipData();
+                shipStatesData[FirstElementIndex].timeData = timeData;
+                shipStatesData[FirstElementIndex].inputData = inputData;
             }
             else if (timeData.dataNumber > FirstElementNumber + 1)
             {
@@ -127,19 +155,26 @@ namespace GameLib.Controllers
                 shipStatesData[FirstElementIndex].timeData = timeData;
                 CalculateShipDataStates(firstNumber, FirstElementNumber);
             }
-            else
+            else if (timeData.time > lastTimeDataSent)
             {
                 shipStatesData[timeData.dataNumber % count].inputData = inputData;
                 shipStatesData[timeData.dataNumber % count].timeData = timeData;
                 CalculateShipDataStates(timeData.dataNumber + 1, FirstElementNumber);
             }
         }
+        private void SetInactive(int index)
+        {
+            shipStatesData[index].inputData = new InputData();
+            SetShipState(index);
+            while (testShip.Speed > 0)
+                testShip.Update((float)iterationTime);
+        }
         private void CalculateShipDataState(int number)
         {
             SetShipState((number - 1) % count);
             float deltaTime = (float)(shipStatesData[number % count].timeData.time - shipStatesData[(number - 1) % count].timeData.time);
-            (ship).Update(deltaTime);
-            shipStatesData[number % count].shipData = ship.GetShipData();
+            (testShip).Update(deltaTime);
+            shipStatesData[number % count].shipData = testShip.GetShipData();
             shipCurrentStateNumber = number;
         }
         private void CalculateShipDataStates(int firstNumber, int lastNumber)
@@ -150,16 +185,16 @@ namespace GameLib.Controllers
             {
                 float deltaTime = (float)(shipStatesData[firstNumber % count].timeData.time - shipStatesData[index].timeData.time);
                 index = firstNumber % count;
-                (ship).Update(deltaTime);
-                shipStatesData[index].shipData = ship.GetShipData();
-                ship.SetInput(ref shipStatesData[index].inputData);
+                (testShip).Update(deltaTime);
+                shipStatesData[index].shipData = testShip.GetShipData();
+                testShip.SetInput(ref shipStatesData[index].inputData);
                 firstNumber++;
             }
             shipCurrentStateNumber = lastNumber;
         }
         private void SetShipState(int index)
         {
-            ship.SetShipState(ref shipStatesData[index].shipData, ref shipStatesData[index].inputData);
+            testShip.SetShipState(ref shipStatesData[index].shipData, ref shipStatesData[index].inputData);
         }
         private bool CheckState(int index)
         {
@@ -173,9 +208,10 @@ namespace GameLib.Controllers
             if (FirstElementNumber > 0)
                 CalculateShipDataStates(0, FirstElementNumber);
         }
-        public void SetShip(BaseShip baseShip)
+        public void SetShip(BaseShip baseShip, BaseShip testBaseShip)
         {
             ship = baseShip;
+            testShip = testBaseShip;
             shipStatesData = new ShipStateData[count];
             shipStatesData[0].shipData = baseShip.GetShipData();
         }

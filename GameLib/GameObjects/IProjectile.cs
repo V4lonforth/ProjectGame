@@ -5,7 +5,7 @@ namespace GameLib.GameObjects
 {
     public interface IProjectile : IPhysicalObject
     {
-        bool IsDestroyed { get; }
+        bool IsActive { get; }
         void Launch(Vector2 pos, Vector2 dir, Vector2 velocity, float damage, int team);
     }
 }

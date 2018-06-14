@@ -18,7 +18,6 @@ namespace Server
         private Tcp connection;
         private ShipInfo[] shipsInfo;
         
-        private double timeDiff;
 
         public int Id { get; private set; }
         public IPEndPoint PlayerEndPoint { get { return connection.RemoteEndPoint; } }
@@ -32,6 +31,10 @@ namespace Server
         }
 
         private double initialTime;
+        private double timeDiff;
+
+        private double timeDiffInterval = 0.08d;
+        private const double timeDiffIncreasing = 0.004d;
 
         private const int historySize = 100;
         private const int maxMissingDataCount = 5;
@@ -63,11 +66,14 @@ namespace Server
         }
         public CreateShipActionData CreateShip()
         {
-            shipController.SetShip(new BaseShip(shipsInfo[0], projectilesController, Id, Vector2.Zero, Id));
+            shipController.SetShip(new BaseShip(shipsInfo[0], projectilesController, Id, Vector2.Zero, Id, true), new BaseShip(shipsInfo[0], null, Id, Vector2.Zero, Id, false));
             CreateShipActionData data = new CreateShipActionData()
             {
                 id = Id,
-                position = Vector2.Zero
+                position = Vector2.Zero,
+                shipType = 0,
+                team = Id,
+                type = ShipType.Player
             };
             
             return data;
@@ -78,6 +84,11 @@ namespace Server
         }
         public ShipStateData GetShipStateData(double time)
         {
+            double playerTime = time - timeDiff;
+            if (shipController.Time < playerTime)
+                timeDiff += timeDiffIncreasing;
+            else if (shipController.Time > playerTime + timeDiffInterval)
+                timeDiff -= timeDiffIncreasing;
             return shipController.GetShipState(time - timeDiff);
         }
         public void ReceiveUdpData(Udp udp)
@@ -99,7 +110,7 @@ namespace Server
                     {
                         case DataType.Input:
                             index += structConverter.ConvertBytesToStruct(bytes, index, out InputData inputData);
-                            ReceiveData(ref timeData, ref inputData);
+                            shipController.AddInputData(ref timeData, ref inputData);
                             break;
                     }
                 }
@@ -125,10 +136,6 @@ namespace Server
                     }
                 }
             }
-        }
-        private void ReceiveData(ref TimeData timeData, ref InputData inputData)
-        {
-            shipController.AddInputData(ref timeData, ref inputData);
         }
     }
 }

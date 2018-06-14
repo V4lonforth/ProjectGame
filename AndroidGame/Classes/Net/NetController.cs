@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using AndroidGame.Controllers;
 using GameLib.Controllers;
@@ -16,11 +17,11 @@ namespace AndroidGame.Net
         private Sender sender;
 
         private ShipsController shipsController;
-        private ShipController shipController;
+        private List<ShipController> shipControllers;
 
         private StructConverter converter;
 
-        private const string serverAddress = "192.168.42.96";
+        private const string serverAddress = "192.168.42.134";
         private const int listeningPort = 4401;
         private const int sendingPort = 4400;
 
@@ -31,7 +32,7 @@ namespace AndroidGame.Net
             tcp = new Tcp(serverEndPoint);
             udp = new ConnectedUdp(tcp.LocalEndPoint, serverEndPoint);
             this.shipsController = shipsController;
-            shipController = new ShipController();
+            shipControllers = new List<ShipController>();
             sender = new Sender(udp);
         }
         private void ReceiveTCPData()
@@ -54,16 +55,31 @@ namespace AndroidGame.Net
                             break;
                         case DataType.CreateShipAction:
                             index += converter.ConvertBytesToStruct(bytes, index, out CreateShipActionData createShipActionData);
-                            if (createShipActionData.id == id)
-                                shipController = shipsController.CreatePlayerShip(sender, createShipActionData.position, createShipActionData.id);
+                            switch (createShipActionData.type)
+                            {
+                                case ShipType.Player:
+                                    if (id == createShipActionData.id)
+                                        shipControllers.Add(shipsController.CreatePlayerShip(sender, createShipActionData.position, createShipActionData.id, createShipActionData.shipType, createShipActionData.team));
+                                    else
+                                        shipControllers.Add(shipsController.CreateEnemyPlayerShip(createShipActionData.position, createShipActionData.id, createShipActionData.shipType, createShipActionData.team));
+                                    break;
+                                case ShipType.AI:
+                                    shipControllers.Add(shipsController.CreateAIShip(createShipActionData.position, createShipActionData.id, createShipActionData.shipType, createShipActionData.team));
+                                    break;
+                            }
+                            break;
+                        case DataType.DestroyShipAction:
+                            index += converter.ConvertBytesToStruct(bytes, index, out DestroyShipActionData destroyShipActionData);
+                            for (int i = 0; i < shipControllers.Count; i++)
+                                if (destroyShipActionData.id == shipControllers[i].Id)
+                                    shipControllers.RemoveAt(i);
                             break;
                     }
                 }
             }
         }
-        public void Update()
+        private void ReceiveUdpData()
         {
-            ReceiveTCPData();
             udp.Receive(out byte[] bytes);
             if (bytes != null)
             {
@@ -73,19 +89,24 @@ namespace AndroidGame.Net
                 switch (type)
                 {
                     case DataType.Ship:
-                        converter.ConvertBytesToStruct(bytes, index, out ShipData shipData);
+                        index += converter.ConvertBytesToStruct(bytes, index, out ShipData shipData);
                         break;
                     case DataType.Input:
-                        converter.ConvertBytesToStruct(bytes, index, out InputData inputData);
+                        index += converter.ConvertBytesToStruct(bytes, index, out InputData inputData);
                         break;
                     case DataType.ShipState:
-                        converter.ConvertBytesToStruct(bytes, index, out ShipStateData shipStateData);
-                        ShipStateData data = shipController.GetShipState(shipController.FirstElementNumber);
-                        System.Diagnostics.Debug.WriteLine($"X:{shipStateData.shipData.position.X}, Y:{shipStateData.shipData.position.Y}; X:{data.shipData.position.X}, Y:{data.shipData.position.Y}");
-                        //shipController.AddInputData(ref shipStateData.timeData, ref shipStateData.inputData);
+                        index += converter.ConvertBytesToStruct(bytes, index, out ShipStateData shipStateData);
+                        foreach (ShipController shipController in shipControllers)
+                            if (shipController.Id == shipStateData.shipId)
+                                shipController.CheckShipData(ref shipStateData);
                         break;
                 }
             }
+        }
+        public void Update()
+        {
+            ReceiveTCPData();
+            ReceiveUdpData();
         }
     }
 }

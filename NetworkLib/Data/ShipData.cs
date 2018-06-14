@@ -8,6 +8,7 @@ namespace NetworkLib.Data
         public Vector2 movementDirection;
         public Vector2 lookingDirection;
         public float speed;
+        public float health;
 
         public float timeToRotate;
         public float timeToShoot;

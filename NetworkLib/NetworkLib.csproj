@@ -49,10 +49,12 @@
   <ItemGroup>
     <Compile Include="Data\CreateShipActionData.cs" />
     <Compile Include="Data\DataType.cs" />
+    <Compile Include="Data\DestroyShipActionData.cs" />
     <Compile Include="Data\InitializeData.cs" />
     <Compile Include="Data\InputData.cs" />
     <Compile Include="Data\ShipData.cs" />
     <Compile Include="Data\ShipStateData.cs" />
+    <Compile Include="Data\ShipType.cs" />
     <Compile Include="Data\StructConverter.cs" />
     <Compile Include="Data\TimeData.cs" />
     <Compile Include="Tcp.cs" />

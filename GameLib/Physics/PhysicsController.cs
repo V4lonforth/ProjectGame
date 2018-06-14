@@ -67,7 +67,7 @@ namespace GameLib.Physics
             {
                 for (int l = 0; l < bodies[j].Count; l++)
                 {
-                    if (bodies[i][k].CheckCollision(bodies[j][l], collisionChecker))
+                    if (bodies[i][k].IsActive && bodies[j][l].IsActive && bodies[i][k].CheckCollision(bodies[j][l], collisionChecker))
                     {
                         if (bodies[i][k].OnCollisionAction(bodies[j][l]))
                         {

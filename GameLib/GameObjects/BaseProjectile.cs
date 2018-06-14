@@ -8,10 +8,20 @@ namespace GameLib.GameObjects
 {
     public class BaseProjectile : PhysicalObject, IProjectile
     {
-        public bool IsDestroyed { get; private set; }
-
         public float Damage { get; private set; }
         public int Team { get; private set; }
+
+        public bool IsActive
+        {
+            get
+            {
+                return body.IsActive;
+            }
+            private set
+            {
+                body.IsActive = value;
+            }
+        }
 
         private float rotationSpeed;
 
@@ -19,15 +29,15 @@ namespace GameLib.GameObjects
         private const float liveTime = 5f;
 
         public BaseProjectile (ProjectileInfo info)
-            : base(0, PhysicalObjectType.Projectile, Vector2.Zero, Vector2.Zero, Vector2.Zero, info.bodyInfo)
+            : base(0, PhysicalObjectType.Projectile, Vector2.Zero, Vector2.Zero, Vector2.Zero, info.bodyInfo, false)
         {
             rotationSpeed = info.rotationSpeed;
         }
 
         public void Launch(Vector2 pos, Vector2 dir, Vector2 velocity, float damage, int team)
         {
+            IsActive = true;
             Team = team;
-            IsDestroyed = false;
             Position = pos;
             LookingDirection = dir;
             Speed = velocity.Length();
@@ -42,22 +52,19 @@ namespace GameLib.GameObjects
             timeToDestroy -= deltaTime;
             LookingDirection = Functions.RotateVector2(LookingDirection, rotationSpeed * deltaTime);
             if (timeToDestroy <= 0f)
-                IsDestroyed = true;
+                IsActive = false;
         }
 
         protected override bool OnCollision(Body body)
         {
-            if (!IsDestroyed)
+            PhysicalObject parent = (PhysicalObject)body.Parent;
+            switch (parent.Type)
             {
-                PhysicalObject parent = (PhysicalObject)body.Parent;
-                switch (parent.Type)
-                {
-                    case PhysicalObjectType.Ship:
-                        if (((BaseShip)body.Parent).Team == Team)
-                            return false;
-                        IsDestroyed = true;
-                        return true;
-                }
+                case PhysicalObjectType.Ship:
+                    if (((BaseShip)body.Parent).Team == Team)
+                        return false;
+                    IsActive = false;
+                    return true;
             }
             return false;
         }

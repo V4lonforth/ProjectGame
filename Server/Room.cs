@@ -44,6 +44,7 @@ namespace Server
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, listeningPort);
             udp = new Udp(localEndPoint);
             connector = new TcpConnector(localEndPoint);
+            projectilesController = new BaseProjectilesController(100);
         }
 
         public void StartGame()
@@ -59,7 +60,6 @@ namespace Server
             {
                 lastId++;
                 Tcp tcp = new Tcp(socket);
-                BaseShip ship = new BaseShip(shipsInfo[0], null, lastId, Vector2.Zero, lastId);
                 Player player = new Player(lastId, tcp, shipsInfo, projectilesController);
                 players.Add(player);
                 CreateShipActionData data = player.CreateShip();
@@ -83,14 +83,27 @@ namespace Server
         private void Update()
         {
             double time = DateTime.UtcNow.TimeOfDay.TotalSeconds;
+            byte[] bytes;
             if (time - lastIterationTime >= iterationTime)
             {
                 gameTime++;
                 lastIterationTime = time;
                 ShipStateData[] shipsStateData = new ShipStateData[players.Count];
                 for (int i = 0; i < players.Count; i++)
+                {
                     shipsStateData[i] = players[i].GetShipStateData(time - 0.2d);
-                structConverter.ConvertStructsToBytes(shipsStateData, DataType.ShipState, out byte[] bytes);
+                    if (shipsStateData[i].shipData.health <= 0f)
+                    {
+                        DestroyShipActionData destroyShipActionData = new DestroyShipActionData()
+                        {
+                            id = shipsStateData[i].shipId
+                        };
+                        structConverter.ConvertStructToBytes(destroyShipActionData, DataType.DestroyShipAction, out bytes);
+                        foreach (Player player in players)
+                            player.SendTcpData(bytes);
+                    }
+                }
+                structConverter.ConvertStructsToBytes(shipsStateData, DataType.ShipState, out bytes);
                 foreach (Player player in players)
                     udp.SendTo(bytes, player.PlayerEndPoint);
             }

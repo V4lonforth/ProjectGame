@@ -28,14 +28,14 @@ namespace GameLib.GameObjects
 
         public int Id { get; private set; }
 
-        public BaseShip(ShipInfo shipInfo, BaseProjectilesController projController, int team, Vector2 pos, int id)
-            : base(shipInfo.maxSpeed, shipInfo.acceleration, PhysicalObjectType.Ship, pos, Vector2.UnitX, Vector2.UnitX, shipInfo.bodyInfo)
+        public BaseShip(ShipInfo shipInfo, BaseProjectilesController projController, int team, Vector2 pos, int id, bool isActive)
+            : base(shipInfo.maxSpeed, shipInfo.acceleration, PhysicalObjectType.Ship, pos, Vector2.UnitX, Vector2.UnitX, shipInfo.bodyInfo, isActive)
         {
             health = shipInfo.health;
             rotationSpeed = shipInfo.rotationSpeed;
             IsDestroyed = false;
             Team = team;
-            gun = new Gun(this, shipInfo.gunInfo, projController, team);
+            gun = new Gun(this, shipInfo.gunInfo, projController, team, isActive);
             rotationSpeed = shipInfo.rotationSpeed;
             Id = id;
         }
@@ -123,6 +123,7 @@ namespace GameLib.GameObjects
                 speed = Speed,
                 movementDirection = MovementDirection,
                 position = Position,
+                health = health,
                 timeToRotate = timeToRotateLeft,
                 timeToShoot = gun.timeToShoot
             };

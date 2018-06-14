@@ -13,8 +13,14 @@ namespace GameLib.GameObjects
 
         public bool IsActive
         {
-            get;
-            private set;
+            get
+            {
+                return body.IsActive;
+            }
+            private set
+            {
+                body.IsActive = value;
+            }
         }
 
         private new const float maxSpeed = 3000f;
@@ -25,33 +31,30 @@ namespace GameLib.GameObjects
         private static Color color = Color.White;
 
         public BaseLoot(BodyInfo bodyInfo)
-            : base(maxSpeed, acceleration, PhysicalObjectType.Loot, Vector2.Zero, Vector2.Zero, Vector2.Zero, bodyInfo)
+            : base(maxSpeed, acceleration, PhysicalObjectType.Loot, Vector2.Zero, Vector2.Zero, Vector2.Zero, bodyInfo, false)
         {
         }
         
         protected override bool OnCollision(Body body)
         {
-            if (IsActive)
+            PhysicalObject parent = (PhysicalObject)body.Parent;
+            switch (parent.Type)
             {
-                PhysicalObject parent = (PhysicalObject)body.Parent;
-                switch (parent.Type)
-                {
-                    case PhysicalObjectType.Ship:
-                        if (body.GetType() == typeof(BaseShip))
+                case PhysicalObjectType.Ship:
+                    if (body.GetType() == typeof(BaseShip))
+                    {
+                        isAccelerating = true;
+                        MovementDirection = parent.Position - Position;
+                        float distance = MovementDirection.Length();
+                        if (distance <= lootDistance)
                         {
-                            isAccelerating = true;
-                            MovementDirection = parent.Position - Position;
-                            float distance = MovementDirection.Length();
-                            if (distance <= lootDistance)
-                            {
-                                ((BaseShip)body.Parent).GainExperience(experience);
-                                IsActive = false;
-                                return true;
-                            }
-                            MovementDirection /= distance;
+                            ((BaseShip)body.Parent).GainExperience(experience);
+                            IsActive = false;
+                            return true;
                         }
-                        break;
-                }
+                        MovementDirection /= distance;
+                    }
+                    break;
             }
             return false;
         }

@@ -10,6 +10,7 @@ using GameLib.Info;
 using GameLib.Geometry;
 using GameLib.GameObjects.Base;
 using GameLib.Controllers;
+using GameLib.GameObjects;
 
 namespace AndroidGame.Controllers
 {
@@ -50,12 +51,23 @@ namespace AndroidGame.Controllers
             projectilesController = projController;
             particleSystem = parSystem;
         }
-
+        private BaseShip CreateTestShip(Vector2 pos, int shipType)
+        {
+            return new BaseShip(shipsInfo[shipType], null, 0, pos, 0, false);
+        }
+        public ShipController CreateEnemyPlayerShip(Vector2 pos, int id, int shipType = 0, int team = 1)
+        {
+            ShipController shipController = new ShipController();
+            EnemyPlayerShip enemyPlayerShip = new EnemyPlayerShip(shipsInfo[shipType], projectilesController, particleSystem, team, pos, id);
+            shipController.SetShip(enemyPlayerShip, CreateTestShip(pos, shipType));
+            AddShip(enemyPlayerShip);
+            return shipController;
+        }
         public ShipController CreatePlayerShip(Sender sender, Vector2 pos, int id, int shipType = 0, int team = 1)
         {
             ShipController shipController = new ShipController();
             PlayerShip playerShip = new PlayerShip(shipsInfo[shipType], projectilesController, particleSystem, team, pos, id, sender, shipController);
-            shipController.SetShip(playerShip);
+            shipController.SetShip(playerShip, CreateTestShip(pos, shipType));
             AddShip(playerShip);
             camera.Target = playerShip;
             joystickActions(playerShip.SetMovementDirection, playerShip.SetAttackDirection);
@@ -65,24 +77,23 @@ namespace AndroidGame.Controllers
         public void RemoveShip(Ship ship)
         {
             ships.Remove(ship);
-            if (ship.GetType() == typeof(EnemyPlayerShip))
+            if (ship.GetType() == typeof(EnemyPlayerShip) || ship.GetType() == typeof(PlayerShip))
                 shipsPlayers.Remove(ship);
         }
         public void AddShip(Ship ship)
         {
             ships.Add(ship);
-            if (ship.GetType() == typeof(EnemyPlayerShip))
+            if (ship.GetType() == typeof(EnemyPlayerShip) || ship.GetType() == typeof(PlayerShip))
                 shipsPlayers.Add(ship);
         }
 
-        public void CreateAIShip(int type, int id)
+        public ShipController CreateAIShip(Vector2 pos, int id, int shipType = 0, int team = 0)
         {
-            foreach (Ship ship in shipsPlayers)
-            {
-                Vector2 position = Functions.RandomVector2(minSpawnDistance, maxSpawnDistance) + ship.Position;
-                AIShip newShip = new AIShip(shipsInfo[type], projectilesController, particleSystem, 0, position, id);
-                AddShip(newShip);
-            }
+            ShipController shipController = new ShipController();
+            AIShip ship = new AIShip(shipsInfo[shipType], projectilesController, particleSystem, team, pos, id);
+            shipController.SetShip(ship, CreateTestShip(pos, shipType));
+            AddShip(ship);
+            return shipController;
         }
 
         public void Update(float deltaTime)

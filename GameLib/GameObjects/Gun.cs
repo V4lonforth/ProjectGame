@@ -22,13 +22,15 @@ namespace GameLib.GameObjects
         private int projectilesType;
         private int team;
 
+        private bool isActive;
         public bool IsShooting { get; set; }
 
         private BaseProjectilesController projectilesController;
 
-        public Gun(PhysicalObject par, GunInfo gunInfo, BaseProjectilesController pController, int team)
+        public Gun(PhysicalObject par, GunInfo gunInfo, BaseProjectilesController pController, int team, bool active)
         {
             parent = par;
+            isActive = active;
             projectileSpeed = gunInfo.projectileSpeed;
             shootTime = 1f / gunInfo.shootRate;
             projectilesType = gunInfo.projectilesType;
@@ -47,8 +49,12 @@ namespace GameLib.GameObjects
             {
                 if (IsShooting)
                 {
-                    projectilesController.LaunchProjectile(Functions.RotateVector2(shootStartPositions[positionIndex], parent.LookingDirection) + parent.Position, parent.LookingDirection, parent.LookingDirection * projectileSpeed + parent.MovementDirection * parent.Speed, damage, team, projectilesType);
-                    positionIndex = (positionIndex + 1) % shootStartPositions.Length;
+                    if (isActive)
+                    {
+                        projectilesController.LaunchProjectile(Functions.RotateVector2(shootStartPositions[positionIndex], parent.LookingDirection) + parent.Position,
+                            parent.LookingDirection, parent.LookingDirection * projectileSpeed + parent.MovementDirection * parent.Speed, damage, team, projectilesType);
+                        positionIndex = (positionIndex + 1) % shootStartPositions.Length;
+                    }
                     timeToShoot = shootTime;
                 }
             }

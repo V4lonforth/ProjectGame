@@ -36,9 +36,9 @@ namespace GameLib.GameObjects.Base
         
         public PhysicalObjectType Type { get; private set; }
         
-        public PhysicalObject(float sp, PhysicalObjectType t, Vector2 pos, Vector2 movDir, Vector2 lookDir, BodyInfo bodyInfo)
+        public PhysicalObject(float sp, PhysicalObjectType t, Vector2 pos, Vector2 movDir, Vector2 lookDir, BodyInfo bodyInfo, bool isActive = true)
         {
-            body = new Body(bodyInfo, OnCollision, pos, lookDir, this);
+            body = new Body(bodyInfo, OnCollision, pos, lookDir, this, isActive);
             Position = pos;
             MovementDirection = movDir;
             LookingDirection = lookDir;

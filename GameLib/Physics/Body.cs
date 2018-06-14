@@ -35,11 +35,13 @@ namespace GameLib.Physics
             private set;
         }
 
+        public bool IsActive { get; set; }
+
         public Func<Body, bool> OnCollisionAction { get; private set; }
 
         private static PhysicsController physicsController = new PhysicsController();
 
-        public Body(BodyInfo bodyInfo, Func<Body, bool> onCollision, Vector2 pos, Vector2 dir, object par, bool includeInPhysics = true)
+        public Body(BodyInfo bodyInfo, Func<Body, bool> onCollision, Vector2 pos, Vector2 dir, object par, bool isActive = true, bool includeInPhysics = true)
         {
             Parent = par;
             OnCollisionAction = onCollision;
@@ -53,6 +55,7 @@ namespace GameLib.Physics
             Position = pos;
             Direction = dir;
 
+            IsActive = isActive;
             if (includeInPhysics)
                 physicsController.AddBody(this, bodyInfo.physicalType);
         }
