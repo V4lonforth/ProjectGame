@@ -4,7 +4,7 @@ namespace NetworkLib.Data
 {
     public struct CreateShipActionData
     {
-        public ShipType type;
+        public ShipOwner owner;
         public int id;
         public int team;
         public int shipType;

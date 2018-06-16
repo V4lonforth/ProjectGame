@@ -89,6 +89,17 @@ namespace GameLib.Controllers
                 }
             };
         }
+        public CreateShipActionData GetCreateShipActionData()
+        {
+            return new CreateShipActionData()
+            {
+                position = ship.Position,
+                id = Id,
+                owner = ShipOwner.AI,
+                shipType = ship.ShipType,
+                team = ship.Team
+            };
+        }
         public void CheckShipData(ref ShipStateData shipStateData)
         {
             if (shipStateData.timeData.dataNumber <= LastElementNumber)

@@ -1,6 +1,6 @@
 ﻿namespace NetworkLib.Data
 {
-    public enum ShipType
+    public enum ShipOwner
     {
         Player,
         AI

@@ -21,7 +21,7 @@ namespace AndroidGame.Net
 
         private StructConverter converter;
 
-        private const string serverAddress = "192.168.42.134";
+        private const string serverAddress = "192.168.43.91";
         private const int listeningPort = 4401;
         private const int sendingPort = 4400;
 
@@ -55,15 +55,15 @@ namespace AndroidGame.Net
                             break;
                         case DataType.CreateShipAction:
                             index += converter.ConvertBytesToStruct(bytes, index, out CreateShipActionData createShipActionData);
-                            switch (createShipActionData.type)
+                            switch (createShipActionData.owner)
                             {
-                                case ShipType.Player:
+                                case ShipOwner.Player:
                                     if (id == createShipActionData.id)
                                         shipControllers.Add(shipsController.CreatePlayerShip(sender, createShipActionData.position, createShipActionData.id, createShipActionData.shipType, createShipActionData.team));
                                     else
                                         shipControllers.Add(shipsController.CreateEnemyPlayerShip(createShipActionData.position, createShipActionData.id, createShipActionData.shipType, createShipActionData.team));
                                     break;
-                                case ShipType.AI:
+                                case ShipOwner.AI:
                                     shipControllers.Add(shipsController.CreateAIShip(createShipActionData.position, createShipActionData.id, createShipActionData.shipType, createShipActionData.team));
                                     break;
                             }

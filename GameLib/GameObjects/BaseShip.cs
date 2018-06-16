@@ -18,6 +18,7 @@ namespace GameLib.GameObjects
         protected float rotationSpeed;
         protected float health;
 
+        public int ShipType { get; private set; }
         public int Team { get; private set; }
         public bool IsDestroyed { get; private set; }
 
@@ -31,6 +32,7 @@ namespace GameLib.GameObjects
         public BaseShip(ShipInfo shipInfo, BaseProjectilesController projController, int team, Vector2 pos, int id, bool isActive)
             : base(shipInfo.maxSpeed, shipInfo.acceleration, PhysicalObjectType.Ship, pos, Vector2.UnitX, Vector2.UnitX, shipInfo.bodyInfo, isActive)
         {
+            ShipType = shipInfo.shipType;
             health = shipInfo.health;
             rotationSpeed = shipInfo.rotationSpeed;
             IsDestroyed = false;
@@ -114,7 +116,6 @@ namespace GameLib.GameObjects
                     LookingDirection = Functions.CircleLerp(LookingDirection, MovementDirection, rotationSpeed * deltaTime);
             }
         }
-
         public ShipData GetShipData()
         {
             return new ShipData()

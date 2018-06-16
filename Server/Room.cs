@@ -16,11 +16,10 @@ namespace Server
         private TcpConnector connector;
         private Udp udp;
 
-        //private ProjectilesController projectilesController;
-
         private StructConverter structConverter;
 
         private List<Player> players;
+        private List<ShipController> bots;
         private int lastId;
 
         private double lastIterationTime;
@@ -38,9 +37,9 @@ namespace Server
             shipsInfo = ships;
             roomClosed = false;
             lastId = 0;
+            bots = new List<ShipController>();
             players = new List<Player>();
             structConverter = new StructConverter();
-            //projectilesController = new ProjectilesController();
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, listeningPort);
             udp = new Udp(localEndPoint);
             connector = new TcpConnector(localEndPoint);
@@ -61,11 +60,19 @@ namespace Server
                 lastId++;
                 Tcp tcp = new Tcp(socket);
                 Player player = new Player(lastId, tcp, shipsInfo, projectilesController);
-                players.Add(player);
-                CreateShipActionData data = player.CreateShip();
-                structConverter.ConvertStructToBytes(data, DataType.CreateShipAction, out byte[] bytes);
+                player.CreateShip();
+                CreateShipActionData[] data = new CreateShipActionData[bots.Count + players.Count + 1];
+                data[0] = player.GetCreateShipActionData();
+                structConverter.ConvertStructToBytes(data[0], DataType.CreateShipAction, out byte[] bytes);
                 foreach (Player pl in players)
                     pl.SendTcpData(bytes);
+                for (int i = 0; i < players.Count; i++)
+                    data[i + 1] = players[i].GetCreateShipActionData();
+                players.Add(player);
+                for (int i = 0; i < bots.Count; i++)
+                    data[i + players.Count] = bots[i].GetCreateShipActionData();
+                structConverter.ConvertStructsToBytes(data, DataType.CreateShipAction, out bytes);
+                player.SendTcpData(bytes);
                 return true;
             }
             return false;
@@ -87,8 +94,10 @@ namespace Server
             if (time - lastIterationTime >= iterationTime)
             {
                 gameTime++;
+                float deltaTime = (float)(time - lastIterationTime);
                 lastIterationTime = time;
                 ShipStateData[] shipsStateData = new ShipStateData[players.Count];
+                projectilesController.Update(deltaTime);
                 for (int i = 0; i < players.Count; i++)
                 {
                     shipsStateData[i] = players[i].GetShipStateData(time - 0.2d);

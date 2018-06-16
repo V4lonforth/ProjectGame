@@ -29,8 +29,7 @@ namespace GameLib.Controllers
             activeProjectiles = new List<List<IProjectile>>();
             inactiveProjectiles = new List<List<IProjectile>>();
 
-            Texture2D[] projectilesSprites = new Texture2D[projectilesTypesCount];
-            projectilesInfo = ProjectileInfo.GetProjectilesInfo(projectilesSprites);
+            projectilesInfo = ProjectileInfo.GetProjectilesInfo();
 
             for (int i = 0; i < projectilesTypesCount; i++)
                 CreateProjectiles(projectilesInfo[i], projectilesCount);

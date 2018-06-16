@@ -20,13 +20,12 @@ namespace GameLib.Info
         public float sizeMultiplier;
         public Color color;
         
-        public static ProjectileInfo[] GetProjectilesInfo(Texture2D[] textures)
+        public static ProjectileInfo[] GetProjectilesInfo()
         {
             ProjectileInfo[] projectilesInfo = new ProjectileInfo[]
             {
                 new ProjectileInfo()
                 {
-                    texture = textures[0],
                     rotationSpeed = Functions.DegreeToRadians(135f),
                     projectileType = 0,
                     spriteSize = new Vector2(32f, 32f),
@@ -65,6 +64,13 @@ namespace GameLib.Info
                 info.spawnerInfo.ChangeSize(info.sizeMultiplier);
                 info.spriteSize *= info.sizeMultiplier;
             }
+            return projectilesInfo;
+        }
+        public static ProjectileInfo[] GetProjectilesInfo(Texture2D[] textures)
+        {
+            ProjectileInfo[] projectilesInfo = GetProjectilesInfo();
+            for (int i = 0; i < projectilesInfo.Length; i++)
+                projectilesInfo[i].texture = textures[i];
             return projectilesInfo;
         }
     }

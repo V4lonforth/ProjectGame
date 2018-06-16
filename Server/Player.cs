@@ -64,19 +64,15 @@ namespace Server
         {
             connection.Send(bytes);
         }
-        public CreateShipActionData CreateShip()
+        public CreateShipActionData GetCreateShipActionData()
+        {
+            CreateShipActionData data = shipController.GetCreateShipActionData();
+            data.owner = ShipOwner.Player;
+            return data;
+        }
+        public void CreateShip()
         {
             shipController.SetShip(new BaseShip(shipsInfo[0], projectilesController, Id, Vector2.Zero, Id, true), new BaseShip(shipsInfo[0], null, Id, Vector2.Zero, Id, false));
-            CreateShipActionData data = new CreateShipActionData()
-            {
-                id = Id,
-                position = Vector2.Zero,
-                shipType = 0,
-                team = Id,
-                type = ShipType.Player
-            };
-            
-            return data;
         }
         public ShipStateData GetShipStateData()
         {
@@ -98,12 +94,13 @@ namespace Server
 
             while (bytes != null)
             {
-                if (structConverter.GetDataType(bytes, 0) != DataType.Time)
-                    break;
-                int index = 1 + structConverter.ConvertBytesToStruct(bytes, 1, out TimeData timeData);
-
+                int index = 0;
                 while (index < bytes.Length)
                 {
+                    if (structConverter.GetDataType(bytes, 0) != DataType.Time)
+                        break;
+                    index += 1 + structConverter.ConvertBytesToStruct(bytes, 1, out TimeData timeData);
+
                     DataType dataType = structConverter.GetDataType(bytes, index);
                     index++;
                     switch (dataType)
@@ -111,6 +108,8 @@ namespace Server
                         case DataType.Input:
                             index += structConverter.ConvertBytesToStruct(bytes, index, out InputData inputData);
                             shipController.AddInputData(ref timeData, ref inputData);
+                            break;
+                        default:
                             break;
                     }
                 }
