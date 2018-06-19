@@ -81,32 +81,39 @@ namespace AndroidGame.Net
         private void ReceiveUdpData()
         {
             udp.Receive(out byte[] bytes);
-            if (bytes != null)
+            while (bytes != null)
             {
                 int index = 0;
-                DataType type = converter.GetDataType(bytes, index);
-                index++;
-                switch (type)
+                while (index < bytes.Length)
                 {
-                    case DataType.Ship:
-                        index += converter.ConvertBytesToStruct(bytes, index, out ShipData shipData);
-                        break;
-                    case DataType.Input:
-                        index += converter.ConvertBytesToStruct(bytes, index, out InputData inputData);
-                        break;
-                    case DataType.ShipState:
-                        index += converter.ConvertBytesToStruct(bytes, index, out ShipStateData shipStateData);
-                        foreach (ShipController shipController in shipControllers)
-                            if (shipController.Id == shipStateData.shipId)
-                                shipController.CheckShipData(ref shipStateData);
-                        break;
+                    DataType type = converter.GetDataType(bytes, index);
+                    index++;
+                    switch (type)
+                    {
+                        case DataType.Ship:
+                            index += converter.ConvertBytesToStruct(bytes, index, out ShipData shipData);
+                            break;
+                        case DataType.Input:
+                            index += converter.ConvertBytesToStruct(bytes, index, out InputData inputData);
+                            break;
+                        case DataType.ShipState:
+                            index += converter.ConvertBytesToStruct(bytes, index, out ShipStateData shipStateData);
+                            foreach (ShipController shipController in shipControllers)
+                                if (shipController.Id == shipStateData.shipId)
+                                    shipController.CheckShipData(ref shipStateData);
+                            break;
+                    }
                 }
+                udp.Receive(out bytes);
             }
         }
         public void Update()
         {
             ReceiveTCPData();
             ReceiveUdpData();
+            //foreach (ShipController shipController in shipControllers)
+            //    if (shipController.Id != id)
+            //        shipController.Update();
         }
     }
 }

@@ -10,8 +10,8 @@ namespace GameLib.GameObjects.Base
 
         protected bool isAccelerating;
         
-        public PhysicalObjectAcc(float maxSp, float acc, PhysicalObjectType t, Vector2 pos, Vector2 movDir, Vector2 lookDir, BodyInfo bodyInfo, bool isActive) 
-            : base(0f, t, pos, movDir, lookDir, bodyInfo, isActive = true)
+        public PhysicalObjectAcc(float maxSp, float acc, PhysicalObjectType t, Vector2 pos, Vector2 movDir, Vector2 lookDir, BodyInfo bodyInfo, bool isActive = true) 
+            : base(0f, t, pos, movDir, lookDir, bodyInfo, isActive)
         {
             maxSpeed = maxSp;
             acceleration = acc;

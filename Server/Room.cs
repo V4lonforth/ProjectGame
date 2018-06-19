@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using GameLib.Controllers;
 using GameLib.GameObjects;
 using GameLib.Info;
+using GameLib.Physics;
 using Microsoft.Xna.Framework;
 using NetworkLib;
 using NetworkLib.Data;
@@ -29,11 +30,14 @@ namespace Server
 
         private ShipInfo[] shipsInfo;
         private BaseProjectilesController projectilesController;
+        private PhysicsController physicsController;
 
         private const double iterationTime = 1d / 60d;
 
         public Room(int listeningPort, int sendingPort, ShipInfo[] ships)
         {
+            physicsController = new PhysicsController();
+            Body.SetPhysicsController(physicsController);
             shipsInfo = ships;
             roomClosed = false;
             lastId = 0;
@@ -77,14 +81,28 @@ namespace Server
             }
             return false;
         }
-        
+
         private void Receive()
         {
             foreach (Player player in players)
-            {
                 player.ReceiveTcpData();
-                player.ReceiveUdpData(udp);
-            }
+            EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
+            bool finished = false;
+            do
+            {
+                udp.ReceiveFrom(out byte[] bytes, ref endPoint);
+                if (bytes == null)
+                    finished = true;
+                else
+                {
+                    foreach (Player player in players)
+                        if (player.PlayerEndPoint.Equals(endPoint))
+                        {
+                            player.ReceiveUdpData(bytes);
+                            break;
+                        }
+                }
+            } while (!finished);
         }
 
         private void Update()
@@ -98,6 +116,7 @@ namespace Server
                 lastIterationTime = time;
                 ShipStateData[] shipsStateData = new ShipStateData[players.Count];
                 projectilesController.Update(deltaTime);
+
                 for (int i = 0; i < players.Count; i++)
                 {
                     shipsStateData[i] = players[i].GetShipStateData(time - 0.2d);

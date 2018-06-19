@@ -39,7 +39,7 @@ namespace GameLib.Physics
 
         public Func<Body, bool> OnCollisionAction { get; private set; }
 
-        private static PhysicsController physicsController = new PhysicsController();
+        private static PhysicsController physicsController;
 
         public Body(BodyInfo bodyInfo, Func<Body, bool> onCollision, Vector2 pos, Vector2 dir, object par, bool isActive = true, bool includeInPhysics = true)
         {

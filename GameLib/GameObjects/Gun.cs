@@ -52,7 +52,7 @@ namespace GameLib.GameObjects
                     if (isActive)
                     {
                         projectilesController.LaunchProjectile(Functions.RotateVector2(shootStartPositions[positionIndex], parent.LookingDirection) + parent.Position,
-                            parent.LookingDirection, parent.LookingDirection * projectileSpeed + parent.MovementDirection * parent.Speed, damage, team, projectilesType);
+                            parent.LookingDirection, parent.LookingDirection * projectileSpeed/* + parent.MovementDirection * parent.Speed*/, damage, team, projectilesType);
                         positionIndex = (positionIndex + 1) % shootStartPositions.Length;
                     }
                     timeToShoot = shootTime;

@@ -35,7 +35,7 @@ namespace GameLib.Info
                     {
                         new Polygon(new Vector2[]
                         {
-                            new Vector2(-28f, 32f),
+                            new Vector2(-28f, -32f),
                             new Vector2(30f, 0f),
                             new Vector2(-28f, 32f)
                         })

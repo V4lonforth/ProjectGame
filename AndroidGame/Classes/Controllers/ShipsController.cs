@@ -24,8 +24,8 @@ namespace AndroidGame.Controllers
 
         private Action<Action<Vector2>, Action<Vector2>> joystickActions;
 
-        private List<IPhysicalObject> ships;
-        private List<IPhysicalObject> shipsPlayers;
+        private List<ShipController> ships;
+        private List<ShipController> shipsPlayers;
 
         private const float minSpawnDistance = 300f;
         private const float maxSpawnDistance = 500f;
@@ -45,8 +45,8 @@ namespace AndroidGame.Controllers
                 shipSprites[i] = Content.Load<Texture2D>(shipSpritesPath + i.ToString());
             shipsInfo = ShipInfo.GetShipsInfo(shipSprites);
 
-            ships = new List<IPhysicalObject>();
-            shipsPlayers = new List<IPhysicalObject>();
+            ships = new List<ShipController>();
+            shipsPlayers = new List<ShipController>();
             lootController = lController;
             projectilesController = projController;
             particleSystem = parSystem;
@@ -60,7 +60,7 @@ namespace AndroidGame.Controllers
             ShipController shipController = new ShipController();
             EnemyPlayerShip enemyPlayerShip = new EnemyPlayerShip(shipsInfo[shipType], projectilesController, particleSystem, team, pos, id);
             shipController.SetShip(enemyPlayerShip, CreateTestShip(pos, shipType));
-            AddShip(enemyPlayerShip);
+            AddShip(shipController);
             return shipController;
         }
         public ShipController CreatePlayerShip(Sender sender, Vector2 pos, int id, int shipType = 0, int team = 1)
@@ -68,19 +68,19 @@ namespace AndroidGame.Controllers
             ShipController shipController = new ShipController();
             PlayerShip playerShip = new PlayerShip(shipsInfo[shipType], projectilesController, particleSystem, team, pos, id, sender, shipController);
             shipController.SetShip(playerShip, CreateTestShip(pos, shipType));
-            AddShip(playerShip);
+            AddShip(shipController);
             camera.Target = playerShip;
             joystickActions(playerShip.SetMovementDirection, playerShip.SetAttackDirection);
             return shipController;
         }
 
-        public void RemoveShip(Ship ship)
+        public void RemoveShip(ShipController ship)
         {
             ships.Remove(ship);
             if (ship.GetType() == typeof(EnemyPlayerShip) || ship.GetType() == typeof(PlayerShip))
                 shipsPlayers.Remove(ship);
         }
-        public void AddShip(Ship ship)
+        public void AddShip(ShipController ship)
         {
             ships.Add(ship);
             if (ship.GetType() == typeof(EnemyPlayerShip) || ship.GetType() == typeof(PlayerShip))
@@ -92,7 +92,7 @@ namespace AndroidGame.Controllers
             ShipController shipController = new ShipController();
             AIShip ship = new AIShip(shipsInfo[shipType], projectilesController, particleSystem, team, pos, id);
             shipController.SetShip(ship, CreateTestShip(pos, shipType));
-            AddShip(ship);
+            AddShip(shipController);
             return shipController;
         }
 
@@ -100,21 +100,21 @@ namespace AndroidGame.Controllers
         {
             for (int i = 0; i < ships.Count; i++)
             {
-                Ship ship = (Ship)ships[i];
-                if (ship.IsDestroyed)
+                ShipController ship = ships[i];
+                /*if (ship.IsDestroyed)
                 {
                     ships.RemoveAt(i);
                     i--;
                     lootController.AddLoot(ship.DroppingExperience, ship.Position);
                 }
-                else
-                    ships[i].Update(deltaTime);
+                else*/
+                ships[i].Update();
             }
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            foreach (Ship ship in ships)
-                ship.Draw(spriteBatch);
+            foreach (ShipController ship in ships)
+                ((GameLib.GameObjects.Base.IDrawable)ship.Ship).Draw(spriteBatch);
         }
     }
 }

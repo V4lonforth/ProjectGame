@@ -74,10 +74,6 @@ namespace Server
         {
             shipController.SetShip(new BaseShip(shipsInfo[0], projectilesController, Id, Vector2.Zero, Id, true), new BaseShip(shipsInfo[0], null, Id, Vector2.Zero, Id, false));
         }
-        public ShipStateData GetShipStateData()
-        {
-            return shipController.GetShipState(shipController.FirstElementNumber);
-        }
         public ShipStateData GetShipStateData(double time)
         {
             double playerTime = time - timeDiff;
@@ -87,33 +83,26 @@ namespace Server
                 timeDiff -= timeDiffIncreasing;
             return shipController.GetShipState(time - timeDiff);
         }
-        public void ReceiveUdpData(Udp udp)
+        public void ReceiveUdpData(byte[] bytes)
         {
-            EndPoint endPoint = PlayerEndPoint;
-            udp.ReceiveFrom(out byte[] bytes, ref endPoint);
-
-            while (bytes != null)
+            int index = 0;
+            while (index < bytes.Length)
             {
-                int index = 0;
-                while (index < bytes.Length)
-                {
-                    if (structConverter.GetDataType(bytes, 0) != DataType.Time)
-                        break;
-                    index += 1 + structConverter.ConvertBytesToStruct(bytes, 1, out TimeData timeData);
+                if (structConverter.GetDataType(bytes, 0) != DataType.Time)
+                    break;
+                index += 1 + structConverter.ConvertBytesToStruct(bytes, 1, out TimeData timeData);
 
-                    DataType dataType = structConverter.GetDataType(bytes, index);
-                    index++;
-                    switch (dataType)
-                    {
-                        case DataType.Input:
-                            index += structConverter.ConvertBytesToStruct(bytes, index, out InputData inputData);
-                            shipController.AddInputData(ref timeData, ref inputData);
-                            break;
-                        default:
-                            break;
-                    }
+                DataType dataType = structConverter.GetDataType(bytes, index);
+                index++;
+                switch (dataType)
+                {
+                    case DataType.Input:
+                        index += structConverter.ConvertBytesToStruct(bytes, index, out InputData inputData);
+                        shipController.AddInputData(ref timeData, ref inputData);
+                        break;
+                    default:
+                        break;
                 }
-                udp.ReceiveFrom(out bytes, ref endPoint);
             }
         }
         public void ReceiveTcpData()

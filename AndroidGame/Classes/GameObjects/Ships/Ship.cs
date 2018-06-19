@@ -9,7 +9,7 @@ using AndroidGame.GameObjects.Base;
 
 namespace AndroidGame.GameObjects.Ships
 {
-    public class Ship : BaseShip, IPhysicalObject, GameLib.GameObjects.Base.IDrawable
+    public class Ship : BaseShip, IShip, GameLib.GameObjects.Base.IDrawable
     {
         private ParticleSpawner particleSpawner;
         private Drawable drawable;

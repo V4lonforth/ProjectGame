@@ -73,7 +73,6 @@ namespace GameLib.Info
                     {
                         new Polygon(new Vector2[]
                         {
-                            new Vector2(-125f, 0f),
                             new Vector2(-82f, -88f),
                             new Vector2(125f, 0f),
                             new Vector2(-82f, 88f)
@@ -157,7 +156,9 @@ namespace GameLib.Info
             };
             foreach (ShipInfo info in shipsInfo)
             {
-                
+                info.bodyInfo.ChangeSize(info.sizeMultiplier);
+                info.spawnerInfo.ChangeSize(info.sizeMultiplier);
+                info.spriteSize *= info.sizeMultiplier;
             }
             return shipsInfo;
         }

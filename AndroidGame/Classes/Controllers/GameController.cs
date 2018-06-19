@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using GameLib.Controllers;
+using GameLib.Physics;
 using AndroidGame.GUI;
 using AndroidGame.Net;
 
@@ -10,6 +11,7 @@ namespace AndroidGame.Controllers
     class GameController : IDrawablesController
     {
         private IDrawablesController[] controllers;
+        private PhysicsController physicsController;
         private GUIController GUIController;
         
         private ParticleSystem particleSystem;
@@ -19,6 +21,8 @@ namespace AndroidGame.Controllers
 
         public GameController(ContentManager Content, GraphicsDevice graphicsDevice)
         {
+            physicsController = new PhysicsController();
+            Body.SetPhysicsController(physicsController);
             camera = new Camera(GUIController.screenSize);
 
             particleSystem = new ParticleSystem(Content, camera, graphicsDevice);
@@ -47,6 +51,7 @@ namespace AndroidGame.Controllers
             foreach (IController controller in controllers)
                 controller.Update(deltaTime);
 
+            physicsController.CheckCollisions();
             netController.Update();
         }
         public void Draw(SpriteBatch spriteBatch)
