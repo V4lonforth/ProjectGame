@@ -18,10 +18,14 @@ namespace Server
         private Tcp connection;
         private ShipInfo[] shipsInfo;
         
-
         public int Id { get; private set; }
         public IPEndPoint PlayerEndPoint { get { return connection.RemoteEndPoint; } }
 
+        public bool Initialized
+        {
+            get;
+            private set;
+        }
         public double LastReceivedDataTime
         {
             get
@@ -29,9 +33,18 @@ namespace Server
                 return shipController.Time;
             }
         }
+        public double LastCheckedTime
+        {
+            get;
+            private set;
+        }
 
         private double initialTime;
-        private double timeDiff;
+        public double TimeDiff
+        {
+            get;
+            private set;
+        }
 
         private double timeDiffInterval = 0.08d;
         private const double timeDiffIncreasing = 0.004d;
@@ -60,6 +73,10 @@ namespace Server
             connection.Send(bytes);
             initialTime = DateTime.UtcNow.TimeOfDay.TotalSeconds;
         }
+        public void CheckConnection()
+        {
+            connection.Send(new byte[1] { (byte)DataType.CheckConnection });
+        }
         public void SendTcpData(byte[] bytes)
         {
             connection.Send(bytes);
@@ -76,12 +93,12 @@ namespace Server
         }
         public ShipStateData GetShipStateData(double time)
         {
-            double playerTime = time - timeDiff;
+            double playerTime = time - TimeDiff;
             if (shipController.Time < playerTime)
-                timeDiff += timeDiffIncreasing;
+                TimeDiff += timeDiffIncreasing;
             else if (shipController.Time > playerTime + timeDiffInterval)
-                timeDiff -= timeDiffIncreasing;
-            return shipController.GetShipState(time - timeDiff);
+                TimeDiff -= timeDiffIncreasing;
+            return shipController.GetShipState(time - TimeDiff);
         }
         public void ReceiveUdpData(byte[] bytes)
         {
@@ -119,7 +136,12 @@ namespace Server
                     {
                         case DataType.InitialTime:
                             index += structConverter.ConvertBytesToStruct(bytes, index, out double time);
-                            timeDiff = (DateTime.UtcNow.TimeOfDay.TotalSeconds - initialTime) / 2 + initialTime - time;
+                            TimeDiff = (DateTime.UtcNow.TimeOfDay.TotalSeconds - initialTime) / 2 + initialTime - time;
+                            LastCheckedTime = DateTime.UtcNow.TimeOfDay.TotalSeconds;
+                            Initialized = true;
+                            break;
+                        case DataType.CheckConnection:
+                            LastCheckedTime = DateTime.UtcNow.TimeOfDay.TotalSeconds;
                             break;
                     }
                 }

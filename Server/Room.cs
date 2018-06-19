@@ -32,6 +32,7 @@ namespace Server
         private BaseProjectilesController projectilesController;
         private PhysicsController physicsController;
 
+        private const double disconnectTime = 3d;
         private const double iterationTime = 1d / 60d;
 
         public Room(int listeningPort, int sendingPort, ShipInfo[] ships)
@@ -104,7 +105,14 @@ namespace Server
                 }
             } while (!finished);
         }
-
+        private bool CheckPlayerConnection(Player player)
+        {
+            double currentTime = DateTime.UtcNow.TimeOfDay.TotalSeconds;
+            if (currentTime - player.LastCheckedTime > disconnectTime)
+                return false;
+            player.CheckConnection();
+            return true;
+        }
         private void Update()
         {
             double time = DateTime.UtcNow.TimeOfDay.TotalSeconds;
@@ -114,8 +122,18 @@ namespace Server
                 gameTime++;
                 float deltaTime = (float)(time - lastIterationTime);
                 lastIterationTime = time;
+                for (int i = 0; i < players.Count; i++)
+                    if (players[i].Initialized && !CheckPlayerConnection(players[i]))
+                    {
+                        structConverter.ConvertStructToBytes(new DestroyShipActionData() { id = players[i].Id }, DataType.DestroyShipAction, out bytes);
+                        players.RemoveAt(i);
+                        i--;
+                        foreach (Player player in players)
+                            player.SendTcpData(bytes);
+                    }
                 ShipStateData[] shipsStateData = new ShipStateData[players.Count];
                 projectilesController.Update(deltaTime);
+                physicsController.CheckCollisions();
 
                 for (int i = 0; i < players.Count; i++)
                 {
@@ -127,6 +145,10 @@ namespace Server
                             id = shipsStateData[i].shipId
                         };
                         structConverter.ConvertStructToBytes(destroyShipActionData, DataType.DestroyShipAction, out bytes);
+                        foreach (Player player in players)
+                            player.SendTcpData(bytes);
+                        players[i].CreateShip();
+                        structConverter.ConvertStructToBytes(players[i].GetCreateShipActionData(), DataType.CreateShipAction, out bytes);
                         foreach (Player player in players)
                             player.SendTcpData(bytes);
                     }

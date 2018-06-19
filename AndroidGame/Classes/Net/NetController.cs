@@ -72,7 +72,13 @@ namespace AndroidGame.Net
                             index += converter.ConvertBytesToStruct(bytes, index, out DestroyShipActionData destroyShipActionData);
                             for (int i = 0; i < shipControllers.Count; i++)
                                 if (destroyShipActionData.id == shipControllers[i].Id)
+                                {
+                                    shipsController.RemoveShip(shipControllers[i]);
                                     shipControllers.RemoveAt(i);
+                                }
+                            break;
+                        case DataType.CheckConnection:
+                            tcp.Send(new byte[] { (byte)DataType.CheckConnection });
                             break;
                     }
                 }

@@ -77,8 +77,13 @@ namespace AndroidGame.Controllers
         public void RemoveShip(ShipController ship)
         {
             ships.Remove(ship);
-            if (ship.GetType() == typeof(EnemyPlayerShip) || ship.GetType() == typeof(PlayerShip))
+            if (ship.GetType() == typeof(EnemyPlayerShip))
                 shipsPlayers.Remove(ship);
+            if (ship.GetType() == typeof(PlayerShip))
+            {
+                shipsPlayers.Remove(ship);
+                joystickActions((v) => { }, (v) => { });
+            }
         }
         public void AddShip(ShipController ship)
         {

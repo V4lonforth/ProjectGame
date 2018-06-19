@@ -104,7 +104,7 @@ namespace GameLib.Controllers
             {
                 shipId = Ship.Id,
                 inputData = shipStatesData[number].inputData,
-                shipData = testShip.GetShipData(),
+                shipData = Ship.GetShipData(),
                 timeData = new TimeData()
                 {
                     time = time,

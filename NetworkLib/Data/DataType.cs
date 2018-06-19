@@ -9,6 +9,7 @@
         InitialTime,
         Initialize,
         CreateShipAction,
-        DestroyShipAction
+        DestroyShipAction,
+        CheckConnection
     }
 }

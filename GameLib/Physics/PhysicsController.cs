@@ -69,15 +69,18 @@ namespace GameLib.Physics
                 {
                     if (bodies[i][k].IsActive && bodies[j][l].IsActive && bodies[i][k].CheckCollision(bodies[j][l], collisionChecker))
                     {
-                        if (bodies[i][k].OnCollisionAction(bodies[j][l]))
-                        {
-                            RemoveBody(bodies[i][k], i);
-                            k--;
-                        }
-                        if (bodies[j][l].OnCollisionAction(bodies[i][k]))
+                        Body first = bodies[i][k],
+                             second = bodies[j][l];
+                        if (second.OnCollisionAction(first))
                         {
                             RemoveBody(bodies[j][l], j);
                             l--;
+                        }
+                        if (first.OnCollisionAction(second))
+                        {
+                            RemoveBody(bodies[i][k], i);
+                            k--;
+                            break;
                         }
                     }
                 }
